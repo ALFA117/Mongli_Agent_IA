@@ -117,7 +117,7 @@ npm run dev
 
 ## Live Demo
 
-- **Dashboard:** https://mongli-agent.vercel.app _(live after deploy)_
+- **Dashboard:** https://frontend-ebon-xi-57.vercel.app
 - **Telegram Bot:** @MongliAgentBot _(active during hackathon)_
 
 ---
