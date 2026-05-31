@@ -93,9 +93,13 @@ cp .env.example .env
 ```bash
 cd contracts
 npm install
+# Add DEPLOYER_PRIVATE_KEY to ../.env first
 npx hardhat run scripts/deploy.js --network mantleTestnet
-# Copy the printed address into CONTRACT_ADDRESS in your .env
+# Script prints CONTRACT_ADDRESS — copy it to .env
+# Script auto-verifies on Mantle Sepolia explorer
 ```
+
+**Testnet faucet:** https://faucet.sepolia.mantle.xyz
 
 ### 3 — Run the agent
 
