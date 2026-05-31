@@ -1,17 +1,24 @@
 export default function ConfidenceBadge({ value }) {
   const n = Number(value);
-  const style =
-    n >= 85
-      ? "text-green-400 bg-green-400/10 border-green-400/25"
-      : n >= 70
-      ? "text-amber-400 bg-amber-400/10 border-amber-400/25"
-      : "text-red-400 bg-red-400/10 border-red-400/25";
+  const color =
+    n >= 85 ? "#00ff88" :
+    n >= 70 ? "#fbbf24" :
+              "#f87171";
 
   return (
-    <span
-      className={`inline-flex items-center px-2 py-0.5 rounded border text-xs font-mono font-semibold tabular-nums ${style}`}
-    >
-      {n}%
-    </span>
+    <div className="flex items-center gap-2 min-w-0">
+      <span
+        className="text-xs font-mono font-semibold tabular-nums shrink-0 w-7 text-right"
+        style={{ color }}
+      >
+        {n}%
+      </span>
+      <div className="w-14 h-0.5 rounded-full bg-white/5 overflow-hidden shrink-0">
+        <div
+          className="h-full rounded-full"
+          style={{ width: `${n}%`, backgroundColor: color, transition: "width 400ms ease-out" }}
+        />
+      </div>
+    </div>
   );
 }

@@ -3,92 +3,139 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    box-sizing: border-box;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
 
   body {
-    background-color: #050f14;
-    color: #f1f5f9;
+    background-color: #020d18;
+    color: #e2e8f0;
     font-family: "JetBrains Mono", Menlo, monospace;
     -webkit-font-smoothing: antialiased;
+    /* Grid + radial glows */
     background-image:
-      radial-gradient(ellipse at 10% 0%, rgba(74, 222, 128, 0.04) 0%, transparent 55%),
-      radial-gradient(ellipse at 90% 100%, rgba(129, 140, 248, 0.04) 0%, transparent 55%);
+      linear-gradient(rgba(0, 255, 136, 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 136, 0.022) 1px, transparent 1px),
+      radial-gradient(ellipse at 12% 10%,  rgba(0, 255, 136, 0.07) 0%, transparent 52%),
+      radial-gradient(ellipse at 88% 90%,  rgba(56,189,248,  0.05) 0%, transparent 52%);
+    background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%;
     background-attachment: fixed;
+    min-height: 100vh;
   }
 }
 
 @layer components {
-  /* Glassmorphism card */
-  .glass {
-    background: rgba(13, 31, 45, 0.65);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(74, 222, 128, 0.1);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  /* ── Glass cards ──────────────────────────────────────────────────── */
+  .glass-card {
+    position: relative;
+    background: rgba(6, 21, 37, 0.82);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(0, 255, 136, 0.1);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.03);
   }
 
-  /* Smaller glass variant */
-  .glass-sm {
-    background: rgba(13, 31, 45, 0.5);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(100, 116, 139, 0.2);
-    box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  /* Green gradient top line */
+  .glass-card-accent::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,255,136,0.75), transparent);
+    border-radius: 9999px;
   }
 
-  /* Table signal row */
+  /* Whale top line */
+  .glass-card-whale::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(56,189,248,0.7), transparent);
+    border-radius: 9999px;
+  }
+
+  /* Anomaly top line */
+  .glass-card-anomaly::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(251,191,36,0.7), transparent);
+    border-radius: 9999px;
+  }
+
+  /* Lighter panel */
+  .glass-panel {
+    background: rgba(10, 30, 48, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 255, 136, 0.07);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  /* ── Signal table rows ──────────────────────────────────────────── */
   .signal-row {
-    transition: background-color 150ms ease;
-    border-bottom: 1px solid rgba(100, 116, 139, 0.12);
+    border-bottom: 1px solid rgba(0,255,136,0.04);
+    transition: background-color 120ms ease;
   }
-  .signal-row:last-child {
-    border-bottom: none;
-  }
-  .signal-row:hover {
-    background-color: rgba(74, 222, 128, 0.03);
-  }
+  .signal-row:last-child { border-bottom: none; }
+  .signal-row:hover { background-color: rgba(0,255,136,0.03); }
 
-  /* Shimmer for loading states */
-  .shimmer {
+  .signal-row-smart   { border-left: 2px solid rgba(0, 255,136, 0.55); }
+  .signal-row-whale   { border-left: 2px solid rgba(56,189,248,0.55); }
+  .signal-row-anomaly { border-left: 2px solid rgba(251,191, 36,0.55); }
+
+  /* ── Skeleton shimmer ───────────────────────────────────────────── */
+  .skeleton {
     background: linear-gradient(
       90deg,
-      rgba(30, 46, 64, 0.6) 0%,
-      rgba(50, 75, 100, 0.4) 50%,
-      rgba(30, 46, 64, 0.6) 100%
+      rgba(15,40,64,0.6) 0%,
+      rgba(30,65,100,0.4) 50%,
+      rgba(15,40,64,0.6) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.8s linear infinite;
   }
+
+  /* ── Nav states ─────────────────────────────────────────────────── */
+  .nav-active {
+    background: rgba(0,255,136,0.08);
+    color: #00ff88;
+    border: 1px solid rgba(0,255,136,0.22);
+    box-shadow: 0 0 14px rgba(0,255,136,0.12), inset 0 1px 0 rgba(0,255,136,0.1);
+  }
+  .nav-inactive {
+    color: #475569;
+    border: 1px solid transparent;
+    transition: color 150ms, background 150ms;
+  }
+  .nav-inactive:hover {
+    color: #94a3b8;
+    background: rgba(10,30,48,0.6);
+    border-color: rgba(255,255,255,0.04);
+  }
+
+  /* ── Page section title ─────────────────────────────────────────── */
+  .section-label {
+    font-size: 0.65rem;
+    font-family: "JetBrains Mono", monospace;
+    color: #334155;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(71, 85, 105, 0.6);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.8);
-}
+/* ─── Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,255,136,0.18); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,255,136,0.32); }
 
-/* Focus ring */
-:focus-visible {
-  outline: 2px solid rgba(74, 222, 128, 0.5);
-  outline-offset: 2px;
+/* ─── Focus / selection ─────────────────────────────────────────────── */
+:focus-visible { outline: 2px solid rgba(0,255,136,0.55); outline-offset: 2px; }
+::selection    { background: rgba(0,255,136,0.22); color: #00ff88; }
+
+/* ─── Reduced motion ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

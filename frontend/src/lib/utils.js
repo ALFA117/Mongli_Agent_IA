@@ -13,51 +13,55 @@ export function explorerTxUrl(hash) {
 
 export function formatTime(unix) {
   if (!unix) return "—";
-  const d = new Date(unix * 1000);
-  const diffSec = Math.floor((Date.now() - d.getTime()) / 1000);
-
-  if (diffSec < 60) return `${diffSec}s ago`;
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const diff = Math.floor((Date.now() - unix * 1000) / 1000);
+  if (diff < 60)    return `${diff}s ago`;
+  if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return new Date(unix * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export const SIGNAL_STYLES = {
   SMART_MONEY_IN: {
-    label: "Smart Money In",
-    color: "text-green-400",
-    bg: "bg-green-400/10",
-    border: "border-green-400/20",
-    dot: "bg-green-400",
-    rowAccent: "border-l-2 border-green-400/40",
+    label:       "Smart Money In",
+    color:       "text-accent",
+    bg:          "bg-accent/10",
+    border:      "border-accent/20",
+    dot:         "bg-accent",
+    rowClass:    "signal-row-smart",
+    accentHex:   "#00ff88",
+    cardClass:   "glass-card-accent",
+    glowShadow:  "shadow-glow-sm",
   },
   WHALE_MOVE: {
-    label: "Whale Move",
-    color: "text-indigo-400",
-    bg: "bg-indigo-400/10",
-    border: "border-indigo-400/20",
-    dot: "bg-indigo-400",
-    rowAccent: "border-l-2 border-indigo-400/40",
+    label:       "Whale Move",
+    color:       "text-sky-400",
+    bg:          "bg-sky-400/10",
+    border:      "border-sky-400/20",
+    dot:         "bg-sky-400",
+    rowClass:    "signal-row-whale",
+    accentHex:   "#38bdf8",
+    cardClass:   "glass-card-whale",
+    glowShadow:  "shadow-whale-sm",
   },
   ANOMALY: {
-    label: "Anomaly",
-    color: "text-amber-400",
-    bg: "bg-amber-400/10",
-    border: "border-amber-400/20",
-    dot: "bg-amber-400",
-    rowAccent: "border-l-2 border-amber-400/40",
+    label:       "Anomaly",
+    color:       "text-amber-400",
+    bg:          "bg-amber-400/10",
+    border:      "border-amber-400/20",
+    dot:         "bg-amber-400",
+    rowClass:    "signal-row-anomaly",
+    accentHex:   "#fbbf24",
+    cardClass:   "glass-card-anomaly",
+    glowShadow:  "shadow-anomaly-sm",
   },
 };
 
 export function getSignalStyle(type) {
   return (
     SIGNAL_STYLES[type] ?? {
-      label: type,
-      color: "text-slate-400",
-      bg: "bg-slate-400/10",
-      border: "border-slate-400/20",
-      dot: "bg-slate-400",
-      rowAccent: "",
+      label: type, color: "text-slate-400", bg: "bg-slate-400/10",
+      border: "border-slate-400/20", dot: "bg-slate-400",
+      rowClass: "", accentHex: "#64748b", cardClass: "glass-card-accent", glowShadow: "",
     }
   );
 }
