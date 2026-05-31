@@ -6,6 +6,7 @@
 [![Network](https://img.shields.io/badge/Network-Mantle-black?style=flat-square)](https://mantle.xyz)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 [![Hackathon](https://img.shields.io/badge/Turing%20Test%202026-AI%20Alpha%20%26%20Data-blue?style=flat-square)](https://dorahacks.io)
+[![CI](https://github.com/ALFA117/Mongli_Agent_IA/actions/workflows/ci.yml/badge.svg)](https://github.com/ALFA117/Mongli_Agent_IA/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.12+-blue?style=flat-square)](agent/requirements.txt)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.20-363636?style=flat-square)](contracts/src/MongliSignals.sol)
 

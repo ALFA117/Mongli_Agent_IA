@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, ExternalLink } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
   LineChart, Line, CartesianGrid, Area, AreaChart,
 } from "recharts";
 import { fetchRecentSignals } from "../lib/contract";
-import { SIGNAL_STYLES } from "../lib/utils";
+import { SIGNAL_STYLES, shortAddress, explorerAddressUrl, getSignalStyle } from "../lib/utils";
 import StatCard from "../components/StatCard";
+import SignalTypeBadge from "../components/SignalTypeBadge";
 
 const TYPE_COLOR = { SMART_MONEY_IN: "#00ff88", WHALE_MOVE: "#38bdf8", ANOMALY: "#fbbf24" };
 
@@ -220,6 +221,90 @@ export default function Analytics() {
           </div>
         </ChartCard>
 
+      </div>
+
+      {/* ── Top Wallets ─────────────────────────────────────────────── */}
+      <TopWallets signals={signals} />
+
+    </div>
+  );
+}
+
+function TopWallets({ signals }) {
+  const walletMap = signals.reduce((acc, s) => {
+    if (!acc[s.wallet]) acc[s.wallet] = { count: 0, types: {}, maxConf: 0 };
+    acc[s.wallet].count++;
+    acc[s.wallet].types[s.type] = (acc[s.wallet].types[s.type] || 0) + 1;
+    if (s.confidence > acc[s.wallet].maxConf) acc[s.wallet].maxConf = s.confidence;
+    return acc;
+  }, {});
+
+  const top = Object.entries(walletMap)
+    .map(([wallet, d]) => ({
+      wallet,
+      count: d.count,
+      maxConf: d.maxConf,
+      topType: Object.entries(d.types).sort(([,a],[,b]) => b - a)[0]?.[0] || "ANOMALY",
+      smartPct: Math.round(((d.types["SMART_MONEY_IN"] || 0) / d.count) * 100),
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  if (!top.length) return null;
+
+  return (
+    <div className="glass-card glass-card-accent rounded-2xl overflow-hidden">
+      <div className="px-5 pt-5 pb-4 border-b border-white/[0.04]">
+        <p className="section-label">Top wallets · most signals detected</p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm font-mono min-w-[560px]">
+          <thead>
+            <tr className="border-b border-white/[0.03]">
+              {["Rank", "Wallet", "Signals", "Top Signal", "Max Conf", "SmartMoney"].map((h) => (
+                <th key={h} className="text-left py-3 px-4 section-label font-normal">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {top.map((w, i) => {
+              const s = getSignalStyle(w.topType);
+              return (
+                <tr key={w.wallet} className="signal-row border-b border-white/[0.03] last:border-0">
+                  <td className="py-3 pl-4 pr-3 text-slate-700 text-xs tabular-nums">#{i + 1}</td>
+                  <td className="py-3 pr-4">
+                    <a href={explorerAddressUrl(w.wallet)} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-slate-400 hover:text-accent transition-colors group cursor-pointer w-fit"
+                    >
+                      {shortAddress(w.wallet)}
+                      <ExternalLink size={10} className="opacity-0 group-hover:opacity-60" />
+                    </a>
+                  </td>
+                  <td className="py-3 pr-4">
+                    <span className="font-display text-sm font-bold text-slate-200">{w.count}</span>
+                  </td>
+                  <td className="py-3 pr-4">
+                    <SignalTypeBadge type={w.topType} />
+                  </td>
+                  <td className="py-3 pr-4">
+                    <span style={{ color: w.maxConf >= 85 ? "#00ff88" : w.maxConf >= 70 ? "#fbbf24" : "#f87171" }}
+                      className="text-xs font-mono tabular-nums">
+                      {w.maxConf}%
+                    </span>
+                  </td>
+                  <td className="py-3 pr-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-12 h-1 rounded-full bg-white/[0.04] overflow-hidden">
+                        <div className="h-full rounded-full bg-accent" style={{ width: `${w.smartPct}%` }} />
+                      </div>
+                      <span className="text-xs font-mono text-slate-500">{w.smartPct}%</span>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ function EmptyState() {
   );
 }
 
-export default function SignalTable({ signals = [], loading = false }) {
+export default function SignalTable({ signals = [], loading = false, onRowClick }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm font-mono min-w-[560px]">
@@ -51,8 +51,10 @@ export default function SignalTable({ signals = [], loading = false }) {
                 return (
                   <tr
                     key={s.id}
-                    className={`signal-row ${style.rowClass} animate-fadeUp`}
+                    onClick={() => onRowClick?.(s)}
+                    className={`signal-row ${style.rowClass} animate-fadeUp ${onRowClick ? "cursor-pointer" : ""}`}
                     style={{ animationDelay: `${idx * 35}ms`, animationFillMode: "both" }}
+                    title={onRowClick ? "Click to view signal details" : undefined}
                   >
                     <td className="py-3 pl-4 pr-3 text-xs text-slate-700 tabular-nums">{s.id}</td>
                     <td className="py-3 pr-4">
@@ -63,6 +65,7 @@ export default function SignalTable({ signals = [], loading = false }) {
                         href={explorerAddressUrl(s.wallet)}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                         className="flex items-center gap-1 w-fit text-slate-400 hover:text-accent transition-colors duration-150 group cursor-pointer"
                         aria-label={`View ${s.wallet} on explorer`}
                       >
