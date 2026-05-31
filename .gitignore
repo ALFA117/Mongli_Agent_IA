@@ -1,0 +1,26 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+agent/logs/
+venv/
+.venv/
+
+# Node
+node_modules/
+dist/
+.cache/
+
+# Hardhat
+contracts/artifacts/
+contracts/cache/
+contracts/node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/
