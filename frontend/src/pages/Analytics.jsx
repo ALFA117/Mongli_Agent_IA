@@ -41,15 +41,26 @@ function ChartCard({ title, children }) {
   );
 }
 
+const PERIODS = [
+  { label: "24h", hours: 24 },
+  { label: "7d",  hours: 24 * 7 },
+  { label: "30d", hours: 24 * 30 },
+];
+
 export default function Analytics() {
-  const [signals, setSignals] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [allSignals, setAllSignals] = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [period,     setPeriod]     = useState("7d");
 
   useEffect(() => {
-    fetchRecentSignals(100)
-      .then(setSignals).catch(console.error)
+    fetchRecentSignals(200)
+      .then(setAllSignals).catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  /* ── Filter by selected period ────────────────────────────────────── */
+  const cutoff = Math.floor(Date.now() / 1000) - (PERIODS.find(p => p.label === period)?.hours ?? 168) * 3600;
+  const signals = allSignals.filter(s => !s.timestamp || s.timestamp >= cutoff);
 
   /* ── Derived data ─────────────────────────────────────────────────── */
   const typeMap   = signals.reduce((a, s) => ({ ...a, [s.type]: (a[s.type] || 0) + 1 }), {});
@@ -94,7 +105,7 @@ export default function Analytics() {
   );
 
   /* ── Empty ───────────────────────────────────────────────────────── */
-  if (!signals.length) return (
+  if (!allSignals.length) return (
     <div className="text-center py-32 font-mono">
       <BarChart3 size={40} className="mx-auto mb-4 text-slate-800" />
       <p className="text-slate-700">No signals yet — waiting for agent data.</p>
@@ -115,8 +126,23 @@ export default function Analytics() {
         <div>
           <h1 className="font-display text-xl font-bold text-slate-100 tracking-wide">Analytics</h1>
           <p className="text-xs font-mono text-slate-600 mt-0.5">
-            Distribution & patterns · last {signals.length} signals
+            Distribution & patterns · {signals.length} signals
           </p>
+        </div>
+
+        {/* ── Period filter ──────────────────────────────────────── */}
+        <div className="ml-auto flex items-center gap-1 glass-panel rounded-xl p-1">
+          {PERIODS.map(({ label }) => (
+            <button
+              key={label}
+              onClick={() => setPeriod(label)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition-all duration-150 ${
+                period === label ? "nav-active" : "nav-inactive text-slate-500"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 

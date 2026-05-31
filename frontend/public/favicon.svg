@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#020d18"/>
+  <!-- Signal / lightning bolt -->
+  <path d="M19 3L9 18h7.5L15 29l10-15h-7.5z" fill="#00ff88" opacity="0.95"/>
+  <!-- Glow dot -->
+  <circle cx="16" cy="16" r="2.5" fill="#020d18"/>
+  <circle cx="16" cy="16" r="1.5" fill="#00ff88"/>
+</svg>

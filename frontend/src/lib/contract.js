@@ -61,7 +61,7 @@ async function apiFetch(path) {
   }
 }
 
-/* ── Demo mock data — 25 signals over 7 days ────────────────────────── */
+/* ── Demo mock data — 25 signals over 30 days ───────────────────────── */
 const _d = (h) => Math.floor(Date.now() / 1000) - h * 3600;
 
 export const MOCK = [
@@ -87,11 +87,11 @@ export const MOCK = [
   { id:"7",  wallet:"0xBb1a2C3d4E5f6A7b8C9d0E1f2A3b4C5d6E7f8A9c", type:"WHALE_MOVE",     confidence:80, hash:"0xd6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7", timestamp:_d(75.0),reasoning:"109,000 MNT moved in coordinated sequence across 4 txs." },
   { id:"6",  wallet:"0xF0e1D2c3B4a5F6e7D8c9B0a1F2e3D4c5B6a7F8e9", type:"SMART_MONEY_IN", confidence:90, hash:"0xe7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8", timestamp:_d(90.0),reasoning:"Early accumulation ahead of Merchant Moe liquidity event." },
   { id:"5",  wallet:"0x9A8b7C6d5E4f3A2b1C0d9E8f7A6b5C4d3E2f1A0b", type:"WHALE_MOVE",     confidence:75, hash:"0xf8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9", timestamp:_d(110.0),reasoning:"Liquidity provision to Agni Finance. 78,400 MNT." },
-  { id:"4",  wallet:"0x2C4e6A8c0E2a4C6e8A0c2E4a6C8e0A2c4E6a8C0e", type:"ANOMALY",         confidence:70, hash:"0xa9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0", timestamp:_d(132.0),reasoning:"First transaction from new wallet. Immediate high-value move." },
-  { id:"3",  wallet:"0xd3aD4c7e8F9b2A1c3E5D7f0B8e2a4C6d8F0B2e4A", type:"SMART_MONEY_IN", confidence:87, hash:"0xb0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1", timestamp:_d(155.0),reasoning:"Fifth signal. Wallet shows consistent long-term accumulation." },
-  { id:"2",  wallet:"0xCc2b3D4e5F6a7B8c9D0e1F2a3B4c5D6e7F8a9B0d", type:"WHALE_MOVE",     confidence:78, hash:"0xc1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2", timestamp:_d(162.0),reasoning:"Large exit from Fluxion AMM pool." },
-  { id:"1",  wallet:"0xBb1a2C3d4E5f6A7b8C9d0E1f2A3b4C5d6E7f8A9c", type:"SMART_MONEY_IN", confidence:84, hash:"0xd2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3", timestamp:_d(168.0),reasoning:"Initial detection. SmartMoney wallet identified, 38,900 MNT accumulated." },
-  { id:"0",  wallet:"0xA1b2C3d4E5f6A7b8C9d0E1f2A3b4C5d6E7f8A9b0", type:"SMART_MONEY_IN", confidence:92, hash:"0xe3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4", timestamp:_d(170.0),reasoning:"Genesis signal. Agent first detection run. High-conviction smart money wallet." },
+  { id:"4",  wallet:"0x2C4e6A8c0E2a4C6e8A0c2E4a6C8e0A2c4E6a8C0e", type:"ANOMALY",         confidence:70, hash:"0xa9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0", timestamp:_d(288), reasoning:"First transaction from new wallet. Immediate high-value move. 12 days ago." },
+  { id:"3",  wallet:"0xd3aD4c7e8F9b2A1c3E5D7f0B8e2a4C6d8F0B2e4A", type:"SMART_MONEY_IN", confidence:87, hash:"0xb0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1", timestamp:_d(360), reasoning:"Fifth signal. Consistent long-term accumulation pattern. 15 days ago." },
+  { id:"2",  wallet:"0xCc2b3D4e5F6a7B8c9D0e1F2a3B4c5D6e7F8a9B0d", type:"WHALE_MOVE",     confidence:78, hash:"0xc1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2", timestamp:_d(432), reasoning:"Large exit from Fluxion AMM pool. 18 days ago." },
+  { id:"1",  wallet:"0xBb1a2C3d4E5f6A7b8C9d0E1f2A3b4C5d6E7f8A9c", type:"SMART_MONEY_IN", confidence:84, hash:"0xd2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3", timestamp:_d(528), reasoning:"Initial detection. SmartMoney wallet identified, 38,900 MNT. 22 days ago." },
+  { id:"0",  wallet:"0xA1b2C3d4E5f6A7b8C9d0E1f2A3b4C5d6E7f8A9b0", type:"SMART_MONEY_IN", confidence:92, hash:"0xe3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4", timestamp:_d(600), reasoning:"Genesis signal. Agent first detection run. High-conviction smart money wallet. 25 days ago." },
 ];
 
 /* ── Public API ─────────────────────────────────────────────────────── */
