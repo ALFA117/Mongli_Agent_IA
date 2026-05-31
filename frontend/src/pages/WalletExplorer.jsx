@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { ethers } from "ethers";
-import { Search, ExternalLink, TrendingUp, AlertCircle, ShieldCheck } from "lucide-react";
+import { Search, ExternalLink, AlertCircle, ShieldCheck, FlaskConical } from "lucide-react";
 import SignalTable from "../components/SignalTable";
 import SignalModal from "../components/SignalModal";
 import StatCard from "../components/StatCard";
 import SignalTypeBadge from "../components/SignalTypeBadge";
-import { fetchSignalsByWallet } from "../lib/contract";
+import { fetchSignalsByWallet, IS_DEMO } from "../lib/contract";
 import { shortAddress, explorerAddressUrl, SIGNAL_STYLES } from "../lib/utils";
+
+const DEMO_WALLETS = [
+  { address:"0xd3aD4c7e8F9b2A1c3E5D7f0B8e2a4C6d8F0B2e4A", label:"Smart Money × 5 signals" },
+  { address:"0xA1b2C3d4E5f6A7b8C9d0E1f2A3b4C5d6E7f8A9b0", label:"Whale × 3 signals"       },
+  { address:"0xF0e1D2c3B4a5F6e7D8c9B0a1F2e3D4c5B6a7F8e9", label:"Mixed × 3 signals"       },
+  { address:"0xBb1a2C3d4E5f6A7b8C9d0E1f2A3b4C5d6E7f8A9c", label:"Smart Money × 3 signals" },
+];
 
 /* ── Score ring ─────────────────────────────────────────────────────── */
 function ScoreRing({ score }) {
@@ -101,6 +108,32 @@ export default function WalletExplorer() {
           </button>
         </div>
         {error && <p className="flex items-center gap-2 text-red-400 text-xs font-mono" role="alert"><AlertCircle size={12} /> {error}</p>}
+
+        {/* Demo wallet hints */}
+        {IS_DEMO && (
+          <div>
+            <p className="section-label mb-2 flex items-center gap-1.5">
+              <FlaskConical size={10} className="text-accent/40" />
+              Demo wallets — click to load sample data
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {DEMO_WALLETS.map((w) => (
+                <button
+                  key={w.address}
+                  onClick={() => { setInput(w.address); }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition-all"
+                  style={{ background:"rgba(0,255,136,0.04)", border:"1px solid rgba(0,255,136,0.1)", color:"#64748b" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(0,255,136,0.2)"; e.currentTarget.style.color="#94a3b8"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor="rgba(0,255,136,0.1)"; e.currentTarget.style.color="#64748b"; }}
+                >
+                  <span className="text-accent/50">{shortAddress(w.address)}</span>
+                  <span className="text-slate-700">·</span>
+                  {w.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </form>
 
       {/* Results */}

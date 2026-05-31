@@ -1,12 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
-import Layout from "./components/Layout";
+import { lazy, Suspense, useEffect, useState } from "react";
+import Layout       from "./components/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";
-import LiveFeed from "./pages/LiveFeed";
-import WalletExplorer from "./pages/WalletExplorer";
-import Analytics from "./pages/Analytics";
-import NotFound from "./pages/NotFound";
+import PageLoader   from "./components/PageLoader";
 import { fetchTotalSignals, fetchLatestSignal } from "./lib/contract";
+
+// Route-level code splitting — each page loads only when visited
+const LiveFeed       = lazy(() => import("./pages/LiveFeed"));
+const WalletExplorer = lazy(() => import("./pages/WalletExplorer"));
+const Analytics      = lazy(() => import("./pages/Analytics"));
+const NotFound       = lazy(() => import("./pages/NotFound"));
 
 export default function App() {
   const [totalSignals, setTotalSignals] = useState(0);
@@ -31,12 +34,14 @@ export default function App() {
     <BrowserRouter>
       <ErrorBoundary>
         <Layout agentActive={agentActive} totalSignals={totalSignals} latestSignal={latestSignal}>
-          <Routes>
-            <Route path="/"          element={<LiveFeed />}       />
-            <Route path="/wallet"    element={<WalletExplorer />} />
-            <Route path="/analytics" element={<Analytics />}      />
-            <Route path="*"          element={<NotFound />}       />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/"          element={<LiveFeed />}       />
+              <Route path="/wallet"    element={<WalletExplorer />} />
+              <Route path="/analytics" element={<Analytics />}      />
+              <Route path="*"          element={<NotFound />}       />
+            </Routes>
+          </Suspense>
         </Layout>
       </ErrorBoundary>
     </BrowserRouter>
