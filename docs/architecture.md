@@ -1,105 +1,187 @@
-# Architecture — Mongli_Agent_IA
+# Technical Architecture — Mongli_Agent_IA
 
-## System overview
+## Overview
 
-Mongli_Agent_IA is a three-layer system: a Solidity contract layer on Mantle, a Python agent layer, and a React frontend layer. All layers are independently deployable and testable.
-
----
-
-## Component breakdown
-
-### Layer 1 — Smart Contract (`contracts/MongliSignals.sol`)
-
-The source of truth for all AI-generated signals. Deployed on Mantle Mainnet / Sepolia Testnet.
-
-| Function | Description |
-|---|---|
-| `recordSignal()` | Writes a new signal on-chain. Only callable by the agent wallet. |
-| `getSignalsByWallet()` | Returns all signals associated with a wallet address. |
-| `getRecentSignals()` | Returns the latest N global signals. |
-| `getAgentStats()` | Returns total signals and tracked accuracy. |
-
-Events emitted: `SignalRecorded(uint256 indexed signalId, address indexed wallet, string signalType, uint256 confidence)`
-
-Access control: `onlyAgent` modifier — only the address set at deploy time can write signals.
-
----
-
-### Layer 2 — Python Agent (`agent/`)
-
-Runs as a daemon with APScheduler jobs. Modules are decoupled and independently testable with mock data.
-
-#### `collector.py`
-- Polls Mantle RPC every `SCAN_INTERVAL_SECONDS` seconds via web3.py
-- Fetches transactions from wallets with balance > `WHALE_THRESHOLD_MNT`
-- Tracks DeFi protocol interactions: Merchant Moe, Agni Finance, Fluxion
-- Outputs normalized pandas DataFrames
-
-#### `ml_engine.py`
-- Receives DataFrames from the collector
-- Runs IsolationForest for outlier detection
-- Runs KMeans for wallet classification
-- Computes SmartMoney Score (hybrid rule + ML)
-- Returns structured signal dicts with `signal_type`, `confidence`, `reasoning`, `on_chain_hash`
-
-#### `signal_writer.py`
-- Receives signals with `confidence >= MIN_CONFIDENCE_THRESHOLD`
-- Builds and signs transactions to call `MongliSignals.recordSignal()`
-- Implements exponential backoff retry on tx failure
-- Writes a local JSONL log for backtesting
-
-#### `telegram_bot.py`
-- Maintains subscriber list in memory (upgradeable to SQLite)
-- Broadcasts alerts when a new signal is written on-chain
-- Handles `/start`, `/watch`, `/top5`, `/stats`, `/help`
-
-#### `main.py`
-- Entry point — initializes all modules, wires APScheduler jobs, starts Telegram bot polling
-
----
-
-### Layer 3 — React Dashboard (`frontend/`)
-
-Public-facing SPA deployed to Vercel.
-
-| Page | Content |
-|---|---|
-| `/` — Live Feed | Real-time signal table, agent status indicator, signal counter |
-| `/wallet` — Wallet Explorer | Address lookup, signal history, SmartMoney score |
-| `/analytics` — Analytics | Signal type charts (24h/7d/30d), confidence distribution, top 10 wallets |
-
-All on-chain reads go through ethers.js directly — no backend proxy needed for read-only data.
-
----
-
-## Data flow (happy path)
+Three decoupled layers. Each runs independently and communicates via the Mantle blockchain and a local JSONL log.
 
 ```
-1. collector.py fetches block N from Mantle RPC
-2. ml_engine.py analyzes wallet activity → signal with confidence 85
-3. signal_writer.py sends tx → MongliSignals.recordSignal(wallet, "SMART_MONEY_IN", 85, hash)
-4. Mantle confirms tx → SignalRecorded event emitted
-5. telegram_bot.py detects new signal → pushes alert to all subscribers
-6. React dashboard reads contract events via ethers.js → updates Live Feed table
+Layer 1: Smart Contract  (Mantle EVM)
+Layer 2: Python Agent    (cloud / local)
+Layer 3: React Dashboard (Vercel)
 ```
 
 ---
 
-## Network configuration
+## Layer 1 — Smart Contract
 
-| Setting | Value |
-|---|---|
-| Mainnet RPC | https://rpc.mantle.xyz |
-| Mainnet Chain ID | 5000 |
-| Testnet RPC | https://rpc.sepolia.mantle.xyz |
-| Testnet Chain ID | 5003 |
-| Explorer | https://explorer.mantle.xyz |
+**File:** `contracts/src/MongliSignals.sol`
+**Compiler:** Solidity 0.8.20, EVM target: paris
+**Optimizer:** enabled, 200 runs
+
+### Storage layout
+
+```solidity
+struct Signal {
+    uint256 id;
+    address targetWallet;
+    string  signalType;       // "SMART_MONEY_IN" | "WHALE_MOVE" | "ANOMALY"
+    uint256 confidenceScore;  // 0–100
+    bytes32 dataHash;         // keccak256 of off-chain analysis JSON
+    uint256 timestamp;        // block.timestamp
+}
+
+Signal[]                          private _signals;
+mapping(address => uint256[])     private _signalsByWallet;
+```
+
+### Access control
+
+`onlyAgent` modifier on `recordSignal()` — only the wallet set at deployment can write. All read functions are public.
+
+### Events
+
+```solidity
+event SignalRecorded(
+    uint256 indexed signalId,
+    address indexed targetWallet,
+    string  signalType,
+    uint256 confidenceScore
+);
+```
 
 ---
 
-## Security model
+## Layer 2 — Python Agent
 
-- `AGENT_PRIVATE_KEY` is only used by `signal_writer.py` — never exposed in the frontend
-- Contract uses `onlyAgent` to prevent unauthorized signal injection
-- `dataHash` is keccak256 of the full analysis JSON — tamper-evident
-- `.env` is gitignored; `.env.example` contains only placeholder values
+### Module dependency graph
+
+```
+main.py
+  ├── config.py          (env vars, paths, DeFi addresses)
+  ├── collector.py       (Mantle RPC → DataFrame)
+  │     └── web3.py
+  ├── ml_engine.py       (DataFrame → signals)
+  │     ├── sklearn.IsolationForest
+  │     ├── sklearn.KMeans
+  │     └── SmartMoneyScore (heuristic)
+  ├── signal_writer.py   (signals → MongliSignals.sol)
+  │     └── web3.py
+  ├── telegram_bot.py    (signals → subscribers)
+  │     └── python-telegram-bot
+  ├── api.py             (JSONL log → REST)
+  │     └── FastAPI
+  └── backtesting.py     (JSONL log → TP/FP → docs/)
+```
+
+### Scheduler jobs (APScheduler)
+
+| Job | Interval | What |
+|---|---|---|
+| `scan()` | 30s | collect → ML → write → alert |
+| `run_backtest()` | 1h | evaluate outcomes, update docs |
+
+### Feature engineering (9 features per wallet)
+
+| Feature | Type | Description |
+|---|---|---|
+| `tx_count` | int | Number of transactions in scan window |
+| `total_volume_mnt` | float | Sum of all transaction values (MNT) |
+| `max_single_tx` | float | Largest single transaction value |
+| `avg_tx_value` | float | total_volume / tx_count |
+| `unique_counterparties` | int | Distinct `to` addresses |
+| `defi_interactions` | int | Txs to known DeFi protocol addresses |
+| `gas_used_avg` | float | Average gas used |
+| `is_contract_caller` | bool | Any tx has non-trivial calldata |
+| `volume_concentration` | float | max_single_tx / total_volume (0–1) |
+
+### Signal classification logic
+
+```python
+if smart_score >= 60 and cluster in ("smart_money", "whale"):
+    signal_type = "SMART_MONEY_IN"
+elif total_volume >= whale_threshold × 3:
+    signal_type = "WHALE_MOVE"
+elif anomaly_score < -0.15:
+    signal_type = "ANOMALY"
+elif smart_score >= 45:
+    signal_type = "SMART_MONEY_IN"
+else:
+    signal_type = "ANOMALY"
+```
+
+### Confidence blending
+
+```
+confidence = 0.55 × anomaly_confidence + 0.45 × smart_money_score
+
+Anomaly confidence:
+  IsolationForest score ∈ [-0.5, 0.5] → mapped to [90, 10]
+  (more negative = more anomalous = higher confidence)
+
+Smart Money Score (0–100):
+  avg_tx_value ≥ 20k MNT  → +35
+  defi_interactions ≥ 3   → +25
+  tx_count ∈ [2, 15]      → +15
+  unique_counterparties ≥ 4 → +15
+  is_contract_caller       → +10
+
+Cluster bonus:
+  cluster == "smart_money" → × 1.12
+  cluster == "bot"         → × 0.70
+```
+
+---
+
+## Layer 3 — React Dashboard
+
+**URL:** https://mongli-agent-ia.vercel.app
+**Stack:** React 18 + Vite 5 + Tailwind CSS 3 + Recharts 2 + ethers.js 6
+
+### Data flow
+
+```
+ethers.JsonRpcProvider(MANTLE_RPC)
+  → MongliSignals.getRecentSignals(20)
+  → normalize → state
+  → render (auto-refresh 30s)
+```
+
+### Pages
+
+| Route | Component | Data source |
+|---|---|---|
+| `/` | LiveFeed | `getRecentSignals(20)` + `totalSignals()` |
+| `/wallet` | WalletExplorer | `getSignalsByWallet(addr)` |
+| `/analytics` | Analytics | `getRecentSignals(100)` |
+
+### Design system tokens
+
+| Token | Value | Use |
+|---|---|---|
+| `accent` | `#00ff88` | Smart money signals, primary CTA |
+| `sig-whale` | `#38bdf8` | Whale move signals |
+| `sig-anomaly` | `#fbbf24` | Anomaly signals |
+| `base` | `#020d18` | Body background |
+| Font display | Orbitron 600–900 | Headings, stat numbers |
+| Font mono | JetBrains Mono 400–600 | All data, addresses, labels |
+
+---
+
+## Network Configuration
+
+| Parameter | Testnet | Mainnet |
+|---|---|---|
+| Chain ID | 5003 | 5000 |
+| RPC | https://rpc.sepolia.mantle.xyz | https://rpc.mantle.xyz |
+| Explorer | https://explorer.sepolia.mantle.xyz | https://explorer.mantle.xyz |
+| Native token | MNT | MNT |
+
+---
+
+## Security Model
+
+- `AGENT_PRIVATE_KEY` never exposed in frontend; only used by `signal_writer.py`
+- `onlyAgent` modifier prevents unauthorised signal injection on-chain
+- `dataHash` is SHA-256 of full analysis JSON — tamper-evident audit trail
+- `.env` is gitignored; all secrets documented via `.env.example` only
+- Docker container runs as non-root (Python 3.12-slim base)

@@ -1,56 +1,81 @@
 # Backtesting Results — Mongli_Agent_IA
 
-> This document records historical signal performance to demonstrate the agent's alpha-generation capability. Updated after each testnet run.
+> Auto-updated hourly by `agent/backtesting.py`. Last manual update: 2026-05-31.
 
 ---
 
 ## Methodology
 
-Each signal emitted by the agent is logged locally in `agent/logs/signals.jsonl` with:
-- `timestamp` — UTC time of signal emission
-- `wallet` — target wallet address
-- `signal_type` — SMART_MONEY_IN / WHALE_MOVE / ANOMALY
-- `confidence` — model score (0–100)
-- `reasoning` — human-readable explanation
-- `on_chain_tx` — transaction hash of the `recordSignal()` call
-- `outcome` — `TP` / `FP` / `PENDING` (filled in after 24h)
+### Signal emission
+A signal is emitted when:
+1. Wallet confidence ≥ 70% (blend of IsolationForest + SmartMoney score)
+2. Signal is written on-chain via `MongliSignals.recordSignal()`
+3. Full analysis JSON is logged locally in `agent/logs/signals.jsonl`
 
-A signal is marked **True Positive (TP)** if the monitored wallet shows a measurable directional move (≥5% token price or ≥20% volume spike) within 24 hours of the signal. Otherwise **False Positive (FP)**.
+### Outcome classification
+
+| Outcome | Criteria |
+|---|---|
+| **TP (True Positive)** | Wallet reappears within 24h with ≥ 20% higher volume |
+| **FP (False Positive)** | 24h window expires without reappearance |
+| **PENDING** | Still within the 24h evaluation window |
+
+The `backtesting.py` script runs hourly, reads `signals.jsonl`, evaluates outcomes, and writes updated results back to this file.
+
+### On-chain verification
+Every signal in the log has an `on_chain_tx` hash. Verify any entry at:
+```
+https://explorer.sepolia.mantle.xyz/tx/<on_chain_tx>
+```
+
+Call `getSignalsByWallet(wallet)` on the deployed contract to cross-reference.
 
 ---
 
-## Results by period
+## Overall Results
 
-### Testnet — Mantle Sepolia
+| Metric | Value |
+|---|---|
+| Total signals | 0 (contract not yet deployed) |
+| True Positives | — |
+| False Positives | — |
+| Pending | — |
+| **Accuracy** | — |
+| Avg Confidence | — |
 
-| Date | Signals | TP | FP | Pending | Accuracy |
-|---|---|---|---|---|---|
-| _(run not yet started)_ | — | — | — | — | — |
-
-### Mainnet — Mantle (submit period)
-
-| Date | Signals | TP | FP | Pending | Accuracy |
-|---|---|---|---|---|---|
-| _(deploy pending)_ | — | — | — | — | — |
-
----
-
-## Signal log (sample)
-
-```jsonl
-{"timestamp":"","wallet":"","signal_type":"","confidence":0,"reasoning":"","on_chain_tx":"","outcome":"PENDING"}
-```
-
-_(Populated after first agent run)_
+_Results will populate after `make deploy-testnet` and the agent starts recording on-chain._
 
 ---
 
-## Verification
+## By Signal Type
 
-Every signal in this table has a corresponding on-chain entry readable at:
+| Type | Total | TP | FP | Accuracy |
+|---|---|---|---|---|
+| SMART_MONEY_IN | — | — | — | — |
+| WHALE_MOVE | — | — | — | — |
+| ANOMALY | — | — | — | — |
+
+---
+
+## SmartMoney Score Distribution (mock test run)
+
+Run `make test` to verify the pipeline locally. Sample output from mock data:
 
 ```
-https://explorer.mantle.xyz/address/<CONTRACT_ADDRESS>
+20 wallets analysed
+8 signals generated (≥50% confidence)
+
+[SMART_MONEY_IN] conf=71%  cluster=whale       22,811 MNT · 5 DeFi · 7 counterparties
+[SMART_MONEY_IN] conf=64%  cluster=smart_money 73,973 MNT · 2 DeFi · 5 counterparties
+[SMART_MONEY_IN] conf=61%  cluster=whale       26,965 MNT · 4 DeFi · 4 counterparties
+[SMART_MONEY_IN] conf=55%  cluster=whale       16,641 MNT · 5 DeFi · 2 counterparties
 ```
 
-Call `getSignalsByWallet(wallet)` or `getRecentSignals(N)` to verify any entry independently.
+---
+
+## Signal Log (last 20)
+
+| # | Type | Wallet | Conf | Outcome | TX |
+|---|------|--------|------|---------|-----|
+
+_Log populates after first agent run with a funded wallet._
