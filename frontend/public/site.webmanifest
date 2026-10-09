@@ -1,0 +1,14 @@
+{
+  "name": "Mongli Agent IA — on-chain signal intelligence",
+  "short_name": "Mongli",
+  "description": "An AI agent that tracks smart money on Mantle and writes every signal on-chain.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020d18",
+  "theme_color": "#020d18",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

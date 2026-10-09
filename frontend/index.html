@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- Primary meta -->
     <title>Mongli Agent IA — On-chain Signal Intelligence</title>
@@ -16,24 +16,43 @@
     <meta property="og:title"       content="Mongli Agent IA — Signal Intelligence" />
     <meta property="og:description" content="AI detects smart money moves on Mantle Network and records every signal permanently on-chain with a verifiable hash." />
     <meta property="og:site_name"   content="Mongli Agent IA" />
+    <meta property="og:image"       content="https://mongli-agent-ia.vercel.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt"   content="Mongli Agent IA: a radar of smart-money, whale and anomaly signals on Mantle" />
+    <link rel="canonical" href="https://mongli-agent-ia.vercel.app/" />
 
     <!-- Twitter Card -->
-    <meta name="twitter:card"        content="summary" />
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:image"       content="https://mongli-agent-ia.vercel.app/og.png" />
     <meta name="twitter:title"       content="Mongli Agent IA — Signal Intelligence" />
     <meta name="twitter:description" content="Real-time AI smart money tracking on Mantle Network. Hackathon Turing Test 2026." />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#020d18" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#eff4f1" media="(prefers-color-scheme: light)" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@600;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&family=Orbitron:wght@600;700;900&display=swap"
       rel="stylesheet"
     />
+    <script>
+      // Stamp the theme before first paint so light-mode readers never see a dark flash.
+      try {
+        var t = localStorage.getItem("mongli-theme");
+        if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.dataset.theme = t;
+      } catch (e) { document.documentElement.dataset.theme = "dark"; }
+    </script>
   </head>
   <body>
+    <noscript><p style="padding:24px;font-family:sans-serif">Mongli Agent IA needs JavaScript to show the dashboard. Source: https://github.com/ALFA117/Mongli_Agent_IA</p></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
