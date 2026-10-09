@@ -28,7 +28,7 @@ export const SIGNAL_STYLES = {
     border:      "border-accent/20",
     dot:         "bg-accent",
     rowClass:    "signal-row-smart",
-    accentHex:   "#00ff88",
+    accentHex:   "rgb(var(--accent))",
     cardClass:   "glass-card-accent",
     glowShadow:  "shadow-glow-sm",
   },
@@ -39,7 +39,7 @@ export const SIGNAL_STYLES = {
     border:      "border-sky-400/20",
     dot:         "bg-sky-400",
     rowClass:    "signal-row-whale",
-    accentHex:   "#38bdf8",
+    accentHex:   "rgb(var(--whale))",
     cardClass:   "glass-card-whale",
     glowShadow:  "shadow-whale-sm",
   },
@@ -50,7 +50,7 @@ export const SIGNAL_STYLES = {
     border:      "border-amber-400/20",
     dot:         "bg-amber-400",
     rowClass:    "signal-row-anomaly",
-    accentHex:   "#fbbf24",
+    accentHex:   "rgb(var(--anomaly))",
     cardClass:   "glass-card-anomaly",
     glowShadow:  "shadow-anomaly-sm",
   },
@@ -61,7 +61,7 @@ export function getSignalStyle(type) {
     SIGNAL_STYLES[type] ?? {
       label: type, color: "text-slate-400", bg: "bg-slate-400/10",
       border: "border-slate-400/20", dot: "bg-slate-400",
-      rowClass: "", accentHex: "#64748b", cardClass: "glass-card-accent", glowShadow: "",
+      rowClass: "", accentHex: "rgb(var(--muted))", cardClass: "glass-card-accent", glowShadow: "",
     }
   );
 }

@@ -21,7 +21,7 @@ function HashRow({ label, value, explorerUrl }) {
       <p className="section-label mb-1.5">{label}</p>
       <div
         className="flex items-center gap-2 rounded-xl px-3 py-2.5"
-        style={{ background: "rgba(2,13,24,0.8)", border: "1px solid rgba(0,255,136,0.08)" }}
+        style={{ background: "rgb(var(--base) / 0.8)", border: "1px solid rgb(var(--accent) / 0.08)" }}
       >
         <span className="text-xs font-mono text-slate-400 flex-1 break-all">{short}</span>
         <button
@@ -72,7 +72,7 @@ export default function SignalModal({ signal, onClose }) {
       {/* Backdrop */}
       <div
         className="absolute inset-0 cursor-pointer"
-        style={{ background: "rgba(2,13,24,0.75)", backdropFilter: "blur(8px)" }}
+        style={{ background: "rgb(var(--base) / 0.75)", backdropFilter: "blur(8px)" }}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -124,10 +124,10 @@ export default function SignalModal({ signal, onClose }) {
             <p className="section-label mb-1.5">Confidence score</p>
             <div className="flex items-center gap-4">
               <ConfidenceBadge value={signal.confidence} />
-              <div className="h-1.5 flex-1 rounded-full bg-white/[0.04] overflow-hidden">
+              <div className="h-1.5 flex-1 rounded-full bg-line/[0.04] overflow-hidden">
                 <div
                   className="h-full rounded-full"
-                  style={{ width: `${signal.confidence}%`, backgroundColor: signal.confidence >= 85 ? "#00ff88" : signal.confidence >= 70 ? "#fbbf24" : "#f87171", transition: "width 600ms ease-out" }}
+                  style={{ width: `${signal.confidence}%`, backgroundColor: signal.confidence >= 85 ? "rgb(var(--accent))" : signal.confidence >= 70 ? "rgb(var(--anomaly))" : "rgb(var(--danger))", transition: "width 600ms ease-out" }}
                 />
               </div>
             </div>
@@ -155,7 +155,7 @@ export default function SignalModal({ signal, onClose }) {
           {/* Verification info */}
           <div
             className="rounded-xl px-4 py-3 text-xs font-mono"
-            style={{ background: "rgba(0,255,136,0.04)", border: "1px solid rgba(0,255,136,0.08)" }}
+            style={{ background: "rgb(var(--accent) / 0.04)", border: "1px solid rgb(var(--accent) / 0.08)" }}
           >
             <p className="text-accent/60 mb-1">On-chain verification</p>
             <p className="text-slate-600 leading-relaxed">

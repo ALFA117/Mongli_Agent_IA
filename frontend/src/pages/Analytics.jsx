@@ -5,30 +5,30 @@ import {
   PieChart, Pie, Cell, Legend,
   LineChart, Line, CartesianGrid, Area, AreaChart,
 } from "recharts";
-import { fetchRecentSignals } from "../lib/contract";
+import { fetchRecentSignals, IS_DEMO } from "../lib/contract";
 import { SIGNAL_STYLES, shortAddress, explorerAddressUrl, getSignalStyle } from "../lib/utils";
 import StatCard from "../components/StatCard";
 import SignalTypeBadge from "../components/SignalTypeBadge";
 
-const TYPE_COLOR = { SMART_MONEY_IN: "#00ff88", WHALE_MOVE: "#38bdf8", ANOMALY: "#fbbf24" };
+const TYPE_COLOR = { SMART_MONEY_IN: "rgb(var(--accent))", WHALE_MOVE: "rgb(var(--whale))", ANOMALY: "rgb(var(--anomaly))" };
 
 const tooltip = {
   contentStyle: {
-    background: "rgba(6,21,37,0.97)",
-    border: "1px solid rgba(0,255,136,0.15)",
+    background: "rgb(var(--surface) / 0.97)",
+    border: "1px solid rgb(var(--accent) / 0.15)",
     borderRadius: "10px",
-    fontSize: "11px",
+    fontSize: "12px",
     fontFamily: "JetBrains Mono, monospace",
-    color: "#94a3b8",
+    color: "rgb(var(--muted))",
     boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
     padding: "8px 12px",
   },
-  cursor: { fill: "rgba(0,255,136,0.03)" },
-  labelStyle: { color: "#475569" },
+  cursor: { fill: "rgb(var(--accent) / 0.03)" },
+  labelStyle: { color: "rgb(var(--muted))" },
 };
 
 const axis = {
-  tick: { fill: "#334155", fontSize: 11, fontFamily: "JetBrains Mono, monospace" },
+  tick: { fill: "rgb(var(--muted))", fontSize: 12, fontFamily: "JetBrains Mono, monospace" },
   axisLine: false, tickLine: false,
 };
 
@@ -51,12 +51,17 @@ export default function Analytics() {
   const [allSignals, setAllSignals] = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [period,     setPeriod]     = useState("7d");
+  const [error,      setError]      = useState(null);
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
+    setError(null);
     fetchRecentSignals(200)
-      .then(setAllSignals).catch(console.error)
+      .then(setAllSignals)
+      .catch((e) => setError(e?.message ?? "Could not load signals."))
       .finally(() => setLoading(false));
-  }, []);
+  };
+  useEffect(load, []);
 
   /* ── Filter by selected period ────────────────────────────────────── */
   const cutoff = Math.floor(Date.now() / 1000) - (PERIODS.find(p => p.label === period)?.hours ?? 168) * 3600;
@@ -104,11 +109,21 @@ export default function Analytics() {
     </div>
   );
 
+  /* ── Error ───────────────────────────────────────────────────────── */
+  if (error) return (
+    <div role="alert" className="glass-card rounded-2xl border border-red-400/40 p-8 text-center max-w-lg mx-auto mt-10">
+      <p className="font-semibold text-ink">Analytics could not load</p>
+      <p className="text-sm text-slate-400 mt-2">{error} Check the RPC and try again.</p>
+      <button type="button" onClick={load} className="btn-ghost mt-5">Retry</button>
+    </div>
+  );
+
   /* ── Empty ───────────────────────────────────────────────────────── */
   if (!allSignals.length) return (
-    <div className="text-center py-32 font-mono">
-      <BarChart3 size={40} className="mx-auto mb-4 text-slate-800" />
-      <p className="text-slate-700">No signals yet — waiting for agent data.</p>
+    <div className="text-center py-32">
+      <BarChart3 size={40} className="mx-auto mb-4 text-slate-500" aria-hidden="true" />
+      <p className="text-slate-300 font-semibold">No signals yet</p>
+      <p className="text-sm text-slate-400 mt-1">The agent has not written any signal to the contract. Charts appear after the first one.</p>
     </div>
   );
 
@@ -119,14 +134,14 @@ export default function Analytics() {
       <div className="flex items-center gap-3 animate-slideDown">
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background:"rgba(0,255,136,0.1)", border:"1px solid rgba(0,255,136,0.25)", boxShadow:"0 0 16px rgba(0,255,136,0.12)" }}
+          style={{ background:"rgb(var(--accent) / 0.1)", border:"1px solid rgb(var(--accent) / 0.25)", boxShadow:"0 0 16px rgb(var(--accent) / 0.12)" }}
         >
           <BarChart3 size={18} className="text-accent" />
         </div>
         <div>
           <h1 className="font-display text-xl font-bold text-slate-100 tracking-wide">Analytics</h1>
           <p className="text-xs font-mono text-slate-600 mt-0.5">
-            Distribution & patterns · {signals.length} signals
+            Distribution & patterns · {signals.length} signals{IS_DEMO && " · sample data"}
           </p>
         </div>
 
@@ -136,7 +151,7 @@ export default function Analytics() {
             <button
               key={label}
               onClick={() => setPeriod(label)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition-all duration-150 ${
+              className={`min-h-11 min-w-11 px-3 rounded-lg text-xs font-mono cursor-pointer transition-all duration-150 ${
                 period === label ? "nav-active" : "nav-inactive text-slate-500"
               }`}
             >
@@ -172,11 +187,11 @@ export default function Analytics() {
                 paddingAngle={4} strokeWidth={0}
               >
                 {pieData.map((e) => (
-                  <Cell key={e.key} fill={TYPE_COLOR[e.key] ?? "#6b7280"} fillOpacity={0.85} />
+                  <Cell key={e.key} fill={TYPE_COLOR[e.key] ?? "rgb(var(--muted))"} fillOpacity={0.85} />
                 ))}
               </Pie>
               <Tooltip {...tooltip} />
-              <Legend wrapperStyle={{ fontSize:"11px", fontFamily:"JetBrains Mono, monospace", color:"#475569" }} />
+              <Legend wrapperStyle={{ fontSize:"12px", fontFamily:"JetBrains Mono, monospace", color:"rgb(var(--muted))" }} />
             </PieChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -185,11 +200,11 @@ export default function Analytics() {
         <ChartCard title="Confidence distribution">
           <ResponsiveContainer width="100%" height={230}>
             <BarChart data={buckets} barSize={26}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,255,136,0.04)" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--accent) / 0.04)" vertical={false} />
               <XAxis dataKey="range" {...axis} />
               <YAxis {...axis} />
               <Tooltip {...tooltip} />
-              <Bar dataKey="count" fill="#00ff88" fillOpacity={0.75} radius={[4,4,0,0]} />
+              <Bar dataKey="count" fill="rgb(var(--accent))" fillOpacity={0.75} radius={[4,4,0,0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -200,20 +215,20 @@ export default function Analytics() {
             <AreaChart data={lineData}>
               <defs>
                 <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#00ff88" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#00ff88" stopOpacity={0.0}  />
+                  <stop offset="5%"  stopColor="rgb(var(--accent))" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="rgb(var(--accent))" stopOpacity={0.0}  />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,255,136,0.04)" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--accent) / 0.04)" vertical={false} />
               <XAxis dataKey="time" {...axis} />
               <YAxis {...axis} />
               <Tooltip {...tooltip} />
               <Area
                 type="monotone" dataKey="count"
-                stroke="#00ff88" strokeWidth={2}
+                stroke="rgb(var(--accent))" strokeWidth={2}
                 fill="url(#areaGrad)"
-                dot={{ fill:"#00ff88", r:3, strokeWidth:0 }}
-                activeDot={{ r:5, fill:"#00ff88", strokeWidth:0, filter:"drop-shadow(0 0 4px #00ff88)" }}
+                dot={{ fill:"rgb(var(--accent))", r:3, strokeWidth:0 }}
+                activeDot={{ r:5, fill:"rgb(var(--accent))", strokeWidth:0, filter:"drop-shadow(0 0 4px rgb(var(--accent)))" }}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -231,7 +246,7 @@ export default function Analytics() {
                     <span className={`text-xs font-mono ${s.color}`}>{s.label}</span>
                     <span className="text-xs font-mono text-slate-600">{count} · {pct}%</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+                  <div className="h-1.5 rounded-full bg-line/[0.04] overflow-hidden">
                     <div
                       className="h-full rounded-full"
                       style={{ width:`${pct}%`, backgroundColor: s.accentHex, transition:"width 900ms cubic-bezier(0.16,1,0.3,1)", boxShadow:`0 0 8px ${s.accentHex}60` }}
@@ -240,7 +255,7 @@ export default function Analytics() {
                 </div>
               );
             })}
-            <div className="pt-2 border-t border-white/[0.04] flex justify-between text-xs font-mono text-slate-700">
+            <div className="pt-2 border-t border-line/[0.04] flex justify-between text-xs font-mono text-slate-700">
               <span>Total analyzed</span>
               <span>{signals.length} signals</span>
             </div>
@@ -280,13 +295,13 @@ function TopWallets({ signals }) {
 
   return (
     <div className="glass-card glass-card-accent rounded-2xl overflow-hidden">
-      <div className="px-5 pt-5 pb-4 border-b border-white/[0.04]">
+      <div className="px-5 pt-5 pb-4 border-b border-line/[0.04]">
         <p className="section-label">Top wallets · most signals detected</p>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm font-mono min-w-[560px]">
           <thead>
-            <tr className="border-b border-white/[0.03]">
+            <tr className="border-b border-line/[0.03]">
               {["Rank", "Wallet", "Signals", "Top Signal", "Max Conf", "SmartMoney"].map((h) => (
                 <th key={h} className="text-left py-3 px-4 section-label font-normal">{h}</th>
               ))}
@@ -296,11 +311,11 @@ function TopWallets({ signals }) {
             {top.map((w, i) => {
               const s = getSignalStyle(w.topType);
               return (
-                <tr key={w.wallet} className="signal-row border-b border-white/[0.03] last:border-0">
+                <tr key={w.wallet} className="signal-row border-b border-line/[0.03] last:border-0">
                   <td className="py-3 pl-4 pr-3 text-slate-700 text-xs tabular-nums">#{i + 1}</td>
                   <td className="py-3 pr-4">
                     <a href={explorerAddressUrl(w.wallet)} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-slate-400 hover:text-accent transition-colors group cursor-pointer w-fit"
+                      className="flex min-h-11 items-center gap-1 text-slate-400 hover:text-accent transition-colors group cursor-pointer w-fit"
                     >
                       {shortAddress(w.wallet)}
                       <ExternalLink size={10} className="opacity-0 group-hover:opacity-60" />
@@ -313,14 +328,14 @@ function TopWallets({ signals }) {
                     <SignalTypeBadge type={w.topType} />
                   </td>
                   <td className="py-3 pr-4">
-                    <span style={{ color: w.maxConf >= 85 ? "#00ff88" : w.maxConf >= 70 ? "#fbbf24" : "#f87171" }}
+                    <span style={{ color: w.maxConf >= 85 ? "rgb(var(--accent))" : w.maxConf >= 70 ? "rgb(var(--anomaly))" : "rgb(var(--danger))" }}
                       className="text-xs font-mono tabular-nums">
                       {w.maxConf}%
                     </span>
                   </td>
                   <td className="py-3 pr-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-12 h-1 rounded-full bg-white/[0.04] overflow-hidden">
+                      <div className="w-12 h-1 rounded-full bg-line/[0.04] overflow-hidden">
                         <div className="h-full rounded-full bg-accent" style={{ width: `${w.smartPct}%` }} />
                       </div>
                       <span className="text-xs font-mono text-slate-500">{w.smartPct}%</span>

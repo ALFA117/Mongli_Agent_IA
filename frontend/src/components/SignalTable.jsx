@@ -20,7 +20,7 @@ function EmptyState() {
     <tr>
       <td colSpan={5}>
         <div className="text-center py-16 font-mono text-sm text-slate-700">
-          <div className="text-4xl mb-3" style={{ fontFamily: "Orbitron, monospace", color: "#0f2840" }}>—</div>
+          <div className="text-4xl mb-3" style={{ fontFamily: "Orbitron, monospace", color: "rgb(var(--surface-3))" }}>—</div>
           No signals recorded yet
         </div>
       </td>
@@ -33,7 +33,7 @@ export default function SignalTable({ signals = [], loading = false, onRowClick 
     <div className="overflow-x-auto">
       <table className="w-full text-sm font-mono min-w-[560px]">
         <thead>
-          <tr className="border-b border-white/[0.04]">
+          <tr className="border-b border-line/[0.04]">
             {["#", "Type", "Wallet", "Confidence", "Time"].map((h) => (
               <th key={h} className="text-left pb-3 pr-4 first:pl-4 section-label font-normal">
                 {h}
@@ -66,7 +66,7 @@ export default function SignalTable({ signals = [], loading = false, onRowClick 
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1 w-fit text-slate-400 hover:text-accent transition-colors duration-150 group cursor-pointer"
+                        className="flex min-h-11 items-center gap-1 w-fit text-slate-400 hover:text-accent transition-colors duration-150 group cursor-pointer"
                         aria-label={`View ${s.wallet} on explorer`}
                       >
                         {shortAddress(s.wallet)}

@@ -5,10 +5,10 @@ export default function PageLoader() {
         {/* Spinning ring */}
         <div className="relative w-10 h-10">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 40 40">
-            <circle cx={20} cy={20} r={16} fill="none" stroke="rgba(0,255,136,0.08)" strokeWidth={3} />
+            <circle cx={20} cy={20} r={16} fill="none" stroke="rgb(var(--accent) / 0.08)" strokeWidth={3} />
             <circle
               cx={20} cy={20} r={16} fill="none"
-              stroke="#00ff88" strokeWidth={3}
+              stroke="rgb(var(--accent))" strokeWidth={3}
               strokeLinecap="round"
               strokeDasharray="60 40"
               className="animate-spin origin-center"

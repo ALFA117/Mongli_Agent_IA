@@ -9,9 +9,9 @@ export default function NotFound() {
       <div
         className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
         style={{
-          background: "rgba(251,191,36,0.08)",
-          border: "1px solid rgba(251,191,36,0.2)",
-          boxShadow: "0 0 32px rgba(251,191,36,0.08)",
+          background: "rgb(var(--anomaly) / 0.08)",
+          border: "1px solid rgb(var(--anomaly) / 0.2)",
+          boxShadow: "0 0 32px rgb(var(--anomaly) / 0.08)",
         }}
       >
         <AlertTriangle size={36} className="text-amber-400" />
@@ -20,7 +20,7 @@ export default function NotFound() {
       {/* Code */}
       <p
         className="font-display text-6xl font-bold mb-2"
-        style={{ color: "rgba(251,191,36,0.9)" }}
+        style={{ color: "rgb(var(--anomaly) / 0.9)" }}
       >
         404
       </p>
@@ -38,13 +38,13 @@ export default function NotFound() {
         to="/"
         className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-mono text-sm transition-all cursor-pointer"
         style={{
-          background: "rgba(0,255,136,0.08)",
-          border: "1px solid rgba(0,255,136,0.2)",
-          color: "#00ff88",
-          boxShadow: "0 0 12px rgba(0,255,136,0.08)",
+          background: "rgb(var(--accent) / 0.08)",
+          border: "1px solid rgb(var(--accent) / 0.2)",
+          color: "rgb(var(--accent))",
+          boxShadow: "0 0 12px rgb(var(--accent) / 0.08)",
         }}
-        onMouseEnter={e => (e.currentTarget.style.background = "rgba(0,255,136,0.15)")}
-        onMouseLeave={e => (e.currentTarget.style.background = "rgba(0,255,136,0.08)")}
+        onMouseEnter={e => (e.currentTarget.style.background = "rgb(var(--accent) / 0.15)")}
+        onMouseLeave={e => (e.currentTarget.style.background = "rgb(var(--accent) / 0.08)")}
       >
         <ArrowLeft size={14} />
         Back to Live Feed

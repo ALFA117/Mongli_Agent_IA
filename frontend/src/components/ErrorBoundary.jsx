@@ -23,7 +23,7 @@ export default class ErrorBoundary extends Component {
 
           <div
             className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-5"
-            style={{ background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)" }}
+            style={{ background: "rgb(var(--anomaly) / 0.1)", border: "1px solid rgb(var(--anomaly) / 0.2)" }}
           >
             <AlertTriangle size={26} className="text-amber-400" />
           </div>
@@ -40,9 +40,9 @@ export default class ErrorBoundary extends Component {
             onClick={() => window.location.reload()}
             className="flex items-center gap-2 mx-auto px-4 py-2 rounded-lg font-mono text-xs transition-all cursor-pointer"
             style={{
-              background: "rgba(251,191,36,0.1)",
-              border: "1px solid rgba(251,191,36,0.2)",
-              color: "#fbbf24",
+              background: "rgb(var(--anomaly) / 0.1)",
+              border: "1px solid rgb(var(--anomaly) / 0.2)",
+              color: "rgb(var(--anomaly))",
             }}
           >
             <RefreshCw size={12} />
