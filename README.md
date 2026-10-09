@@ -260,3 +260,30 @@ Mongli_Agent_IA/
 ---
 
 *Built for Turing Test 2026 — Mantle Network Hackathon*
+
+---
+
+## FIX_NOTES — design pass, 2026-10-09
+
+- **Sample data could pass for live data.** With a contract address configured, a failed read silently fell back to the 25 mock signals, under a green *LIVE* badge. Sample data is now returned only in demo mode; otherwise the page shows the error and a *Retry* button (`sampleOrFail` in `src/lib/contract.js`).
+- **Demo labelling.** The demo banner could be dismissed, after which nothing said the numbers were samples. It is permanent now, and every figure built from samples says so: the KPI labels ("Sample signals — demo set, not on-chain"), the *Latest* bar, the radar caption, the analytics header and the nav count.
+- **Unreadable text.** Footer and table hints used `slate-800` on the navy ground (about 1.6:1) and section labels were 10.4px in `#334155`. The grey scale is now a set of tokens that clears 4.5:1 in both themes, and nothing is under 12px.
+- **Wallet Explorer overflowed at 380px** (the Lookup button left the card). Input and button stack on narrow screens.
+- **Touch targets under 44px**: hamburger, nav links, the dismiss button, period filters, demo-wallet chips, the wallet links in every table. All 44px now; the header also fits at 320px.
+- **Analytics swallowed errors** (`.catch(console.error)`) and showed "No signals yet" instead. It now has an error state with *Retry*, and an empty state that explains what will appear.
+- **SEO.** Share image for WhatsApp/X (`summary_large_image`), canonical, manifest, robots, sitemap, apple-touch icon.
+
+## DESIGN_NOTES
+
+- **System.** The electric-green HUD stays, but every colour is a token now (`src/index.css`, read by `tailwind.config.js`), including the slate/amber/sky/red names the components already used, so a light theme — "field notes" on pale mint paper — exists without rewriting each class. Orbitron stays for display; body text moved from monospace to Manrope for readability; JetBrains Mono remains for addresses, hashes and numbers.
+- **Background — recipe 5 of the dice** (the first roll gave the warp tunnel, already used on another project this week, so the dice were rolled once more). The agent's objects float in real CSS 3D: tokens with two faces and a 12-segment rim (green face, blue back — smart money and whales) and amber blocks. Pointer and scroll parallax per depth; quieter on Wallet Explorer and Analytics; fewer objects on phones; still under reduced motion; dimmed on the light theme.
+- **Hero.** "Follow the smart money before it moves." beside a sonar (`src/components/SignalRadar.jsx`): a sweep turning as one transform, and one blip per recent signal placed by its own data — angle from the wallet, distance from confidence, colour from the type.
+
+## Two-minute phone check
+
+1. Open https://mongli-agent-ia.vercel.app — the amber demo strip is visible and the radar sweeps beside the headline.
+2. Every KPI says *sample*; the header says DEMO.
+3. Open the menu: three full-width rows, easy to hit.
+4. Wallet Explorer: tap a demo wallet, then Lookup — nothing spills off the screen.
+5. Analytics: switch 24h / 7d / 30d.
+6. Tap the sun/moon: the light theme keeps every text readable.
