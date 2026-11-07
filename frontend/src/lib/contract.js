@@ -96,6 +96,14 @@ export const MOCK = [
 
 /* ── Public API ─────────────────────────────────────────────────────── */
 
+// Sample data is only ever returned in demo mode. With a contract configured,
+// a failed read is an error the page has to show — never mock rows dressed up
+// as live ones.
+function sampleOrFail(sample, what) {
+  if (IS_DEMO) return sample;
+  throw new Error(`Could not read ${what} from Mantle. The RPC or the agent API did not answer.`);
+}
+
 export async function fetchRecentSignals(count = 20) {
   const c = getContract();
   if (c) {
@@ -106,7 +114,7 @@ export async function fetchRecentSignals(count = 20) {
   }
   const apiData = await apiFetch(`/signals?limit=${count}`);
   if (apiData?.length) return apiData.map(normalizeApi);
-  return MOCK.slice(0, count);
+  return sampleOrFail(MOCK.slice(0, count), "recent signals");
 }
 
 export async function fetchSignalsByWallet(address) {
@@ -119,8 +127,10 @@ export async function fetchSignalsByWallet(address) {
   }
   const apiData = await apiFetch(`/signals/${address}`);
   if (apiData?.length) return apiData.map(normalizeApi);
-  // Demo: return mock signals for the searched address
-  return MOCK.filter(s => s.wallet.toLowerCase() === address.toLowerCase());
+  return sampleOrFail(
+    MOCK.filter((s) => s.wallet.toLowerCase() === address.toLowerCase()),
+    "this wallet's signals",
+  );
 }
 
 export async function fetchTotalSignals() {
@@ -130,7 +140,7 @@ export async function fetchTotalSignals() {
   }
   const stats = await apiFetch("/stats");
   if (stats?.total_signals != null) return stats.total_signals;
-  return MOCK.length;
+  return sampleOrFail(MOCK.length, "the signal count");
 }
 
 export async function fetchLatestSignal() {
