@@ -2,6 +2,7 @@ import { ExternalLink } from "lucide-react";
 import SignalTypeBadge from "./SignalTypeBadge";
 import ConfidenceBadge from "./ConfidenceBadge";
 import { shortAddress, explorerAddressUrl, formatTime, getSignalStyle } from "../lib/utils";
+import { IS_DEMO } from "../lib/contract";
 
 function SkeletonRow({ i }) {
   return (
@@ -61,6 +62,11 @@ export default function SignalTable({ signals = [], loading = false, onRowClick 
                       <SignalTypeBadge type={s.type} />
                     </td>
                     <td className="py-3 pr-4">
+                      {IS_DEMO ? (
+                        // Sample wallets are placeholders, not real Mantle accounts —
+                        // linking them to the explorer would "verify" nothing.
+                        <span className="text-slate-400">{shortAddress(s.wallet)}</span>
+                      ) : (
                       <a
                         href={explorerAddressUrl(s.wallet)}
                         target="_blank"
@@ -72,6 +78,7 @@ export default function SignalTable({ signals = [], loading = false, onRowClick 
                         {shortAddress(s.wallet)}
                         <ExternalLink size={10} className="opacity-0 group-hover:opacity-60 transition-opacity" />
                       </a>
+                      )}
                     </td>
                     <td className="py-3 pr-4">
                       <ConfidenceBadge value={s.confidence} />

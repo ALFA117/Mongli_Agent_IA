@@ -4,7 +4,7 @@ import StatCard from "../components/StatCard";
 import SignalTable from "../components/SignalTable";
 import SignalModal from "../components/SignalModal";
 import SignalTypeBadge from "../components/SignalTypeBadge";
-import { fetchRecentSignals, fetchTotalSignals } from "../lib/contract";
+import { fetchRecentSignals, fetchTotalSignals, IS_DEMO } from "../lib/contract";
 import { getSignalStyle, SIGNAL_STYLES } from "../lib/utils";
 
 const REFRESH_MS = 30_000;
@@ -39,6 +39,7 @@ export default function LiveFeed() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [refreshing,  setRefreshing]  = useState(false);
   const [selected,    setSelected]    = useState(null);
+  const [error,       setError]       = useState(null);
 
   const load = useCallback(async (manual = false) => {
     if (manual) setRefreshing(true);
@@ -47,7 +48,11 @@ export default function LiveFeed() {
       setSignals(sigs);
       setTotal(tot);
       setLastUpdated(new Date());
-    } catch (e) { console.error("LiveFeed:", e); }
+      setError(null);
+    } catch (e) {
+      console.error("LiveFeed:", e);
+      setError(e instanceof Error ? e.message : String(e));
+    }
     finally { setLoading(false); setRefreshing(false); }
   }, []);
 
@@ -75,7 +80,9 @@ export default function LiveFeed() {
           </div>
           <div>
             <h1 className="font-display text-xl font-bold text-slate-100 tracking-wide">Signal Intelligence</h1>
-            <p className="text-xs font-mono text-slate-600 mt-0.5">Real-time on-chain AI monitoring · Mantle Network</p>
+            <p className="text-xs font-mono text-slate-500 mt-0.5">
+              {IS_DEMO ? "Sample signals (demo) · contract not deployed on Mantle yet" : "Real-time on-chain AI monitoring · Mantle Network"}
+            </p>
           </div>
         </div>
         <button onClick={() => load(true)} disabled={refreshing} className="flex items-center gap-2 px-3 py-2 rounded-xl glass-panel text-xs font-mono text-slate-500 hover:text-slate-300 transition-colors cursor-pointer disabled:opacity-40 self-start sm:self-auto">
@@ -84,10 +91,17 @@ export default function LiveFeed() {
         </button>
       </div>
 
+      {error && (
+        <div role="alert" className="rounded-xl border border-red-400/30 bg-red-400/[0.06] px-4 py-3 text-sm text-red-300">
+          {error}{" "}
+          <button onClick={() => load(true)} className="underline underline-offset-2 hover:text-red-200 cursor-pointer">Retry</button>
+        </div>
+      )}
+
       {/* KPI row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label:"On-Chain Signals", value:total,     sub:"all time recorded",   accent:"green" },
+          { label: IS_DEMO ? "Sample Signals" : "On-Chain Signals", value:total, sub: IS_DEMO ? "demo set, not on-chain" : "all time recorded", accent:"green" },
           { label:"Smart Money",      value:smartMoney, sub:"in last 20 signals",  accent:"green" },
           { label:"Avg Confidence",   value:loading ? "—" : `${avgConf}%`, sub:"last 20 signals", accent:"amber" },
           { label:"Anomalies",        value:anomalies,  sub:"in last 20 signals",  accent:"slate" },
@@ -114,7 +128,7 @@ export default function LiveFeed() {
       {/* Table */}
       <div className="glass-card glass-card-accent rounded-2xl overflow-hidden animate-fadeUp" style={{ animationDelay:"240ms", animationFillMode:"both" }}>
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-white/[0.04]">
-          <p className="section-label">Recent signals — click any row to verify</p>
+          <p className="section-label">{IS_DEMO ? "Sample signals — click a row for details" : "Recent signals — click any row to verify"}</p>
           <span className="text-[10px] font-mono text-slate-800">auto-refresh 30s</span>
         </div>
         <div className="pb-2">

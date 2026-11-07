@@ -180,7 +180,7 @@ export default function WalletExplorer() {
 
           <div className="glass-card glass-card-accent rounded-2xl overflow-hidden">
             <div className="px-5 pt-4 pb-3 border-b border-white/[0.04]">
-              <p className="section-label">Signal history — click to verify</p>
+              <p className="section-label">{IS_DEMO ? "Sample signal history — click for details" : "Signal history — click to verify"}</p>
             </div>
             {signals.length === 0 ? (
               <div className="py-16 text-center text-slate-700 font-mono text-sm">

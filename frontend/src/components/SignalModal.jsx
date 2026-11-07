@@ -4,6 +4,7 @@ import { useState } from "react";
 import SignalTypeBadge from "./SignalTypeBadge";
 import ConfidenceBadge from "./ConfidenceBadge";
 import { shortAddress, explorerAddressUrl, explorerTxUrl, formatTime, getSignalStyle } from "../lib/utils";
+import { IS_DEMO } from "../lib/contract";
 
 function HashRow({ label, value, explorerUrl }) {
   const [copied, setCopied] = useState(false);
@@ -108,6 +109,9 @@ export default function SignalModal({ signal, onClose }) {
           {/* Wallet */}
           <div>
             <p className="section-label mb-1.5">Target wallet</p>
+            {IS_DEMO ? (
+              <span className="font-mono text-sm text-slate-300">{shortAddress(signal.wallet)}</span>
+            ) : (
             <a
               href={explorerAddressUrl(signal.wallet)}
               target="_blank"
@@ -117,6 +121,7 @@ export default function SignalModal({ signal, onClose }) {
               {shortAddress(signal.wallet)}
               <ExternalLink size={11} className="opacity-40 group-hover:opacity-100" />
             </a>
+            )}
           </div>
 
           {/* Confidence */}
@@ -148,7 +153,7 @@ export default function SignalModal({ signal, onClose }) {
             <HashRow
               label="Data hash (keccak256 of off-chain analysis)"
               value={signal.hash}
-              explorerUrl={isTxHash ? explorerTxUrl(signal.hash) : null}
+              explorerUrl={isTxHash && !IS_DEMO ? explorerTxUrl(signal.hash) : null}
             />
           )}
 
@@ -157,15 +162,16 @@ export default function SignalModal({ signal, onClose }) {
             className="rounded-xl px-4 py-3 text-xs font-mono"
             style={{ background: "rgba(0,255,136,0.04)", border: "1px solid rgba(0,255,136,0.08)" }}
           >
-            <p className="text-accent/60 mb-1">On-chain verification</p>
-            <p className="text-slate-600 leading-relaxed">
-              The data hash is a SHA-256 of the full off-chain analysis JSON.
-              Anyone can verify the agent's reasoning by recomputing the hash
-              from the raw signal data and comparing with the on-chain record.
+            <p className="text-accent/60 mb-1">{IS_DEMO ? "Sample signal" : "On-chain verification"}</p>
+            <p className="text-slate-500 leading-relaxed">
+              {IS_DEMO
+                ? "This is demo data: the wallet and hash are placeholders, not a record on Mantle. Once the contract is deployed, each signal's data hash can be checked against the on-chain record."
+                : "The data hash is a SHA-256 of the full off-chain analysis JSON. Anyone can verify the agent's reasoning by recomputing the hash from the raw signal data and comparing with the on-chain record."}
             </p>
           </div>
 
           {/* Explorer link */}
+          {!IS_DEMO && (
           <a
             href={explorerAddressUrl(signal.wallet)}
             target="_blank"
@@ -180,6 +186,7 @@ export default function SignalModal({ signal, onClose }) {
             <ExternalLink size={12} />
             View wallet on Mantle Explorer
           </a>
+          )}
 
         </div>
       </div>
