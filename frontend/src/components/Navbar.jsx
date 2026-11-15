@@ -1,144 +1,112 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
-import { Activity, Wallet, BarChart3, Zap, Cpu, Menu, X } from "lucide-react";
-import { shortAddress, getSignalStyle, formatTime } from "../lib/utils";
+import { NavLink, Link } from "react-router-dom";
+import { Activity, Wallet, BarChart3, FlaskConical } from "lucide-react";
 
-const NAV = [
-  { to: "/",          label: "Live Feed",       Icon: Activity  },
-  { to: "/wallet",    label: "Wallet Explorer", Icon: Wallet    },
-  { to: "/analytics", label: "Analytics",       Icon: BarChart3 },
+export const NAV = [
+  { to: "/",          label: "Live feed",       short: "Feed",      Icon: Activity  },
+  { to: "/wallet",    label: "Wallet explorer", short: "Wallets",   Icon: Wallet    },
+  { to: "/analytics", label: "Analytics",       short: "Analytics", Icon: BarChart3 },
 ];
 
-function SonarDot({ active }) {
-  if (!active) return <span className="w-2 h-2 rounded-full bg-slate-700" />;
+export function BrandMark({ size = 32 }) {
   return (
-    <span className="relative flex items-center justify-center w-3 h-3">
-      <span className="absolute w-3 h-3 rounded-full bg-accent animate-sonar" />
-      <span className="relative w-2 h-2 rounded-full bg-accent shadow-glow-sm" />
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="1" y="1" width="30" height="30" rx="4" fill="rgb(var(--ink))" />
+      <path d="M18.5 5 9.5 18h6l-1.5 9 9-13h-6z" fill="#3FBF8C" />
+    </svg>
+  );
+}
+
+function StatusPill({ live }) {
+  return live ? (
+    <span className="inline-flex items-center gap-2 rounded-sm border border-accent bg-accent-soft px-2.5 py-1 text-[13px] font-medium text-accent-ink">
+      <span className="h-2 w-2 rounded-full bg-accent animate-pulse2" aria-hidden="true" />
+      Live · Mantle
+    </span>
+  ) : (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-sm border border-ink bg-surface px-2.5 py-1 text-[13px] font-medium text-ink"
+      title="Sample signals: the contract is not deployed yet"
+    >
+      <FlaskConical size={14} strokeWidth={2} aria-hidden="true" />
+      Demo data
     </span>
   );
 }
 
-function LatestBar({ signal }) {
-  if (!signal) return null;
-  const s = getSignalStyle(signal.type);
+export default function Navbar({ live = false }) {
   return (
-    <div className="h-7 border-b border-accent/10 flex items-center px-5 gap-3 overflow-hidden"
-      style={{ background: "rgba(0,255,136,0.018)" }}
-    >
-      <span className="text-[10px] font-mono text-accent/40 shrink-0 tracking-widest uppercase">Latest</span>
-      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${s.dot} animate-pulseDot`} />
-      <span className="text-xs font-mono text-slate-500 truncate">
-        <span className={s.color}>{s.label}</span>
-        {" · "}{shortAddress(signal.wallet)}
-        {" · "}{signal.confidence}% confidence
-        {" · "}{formatTime(signal.timestamp)}
-      </span>
-      <span className="ml-auto text-[10px] font-mono text-slate-800 shrink-0 hidden sm:block">MANTLE NETWORK</span>
-    </div>
+    <header className="sticky top-0 z-40 border-b border-ink bg-surface">
+      <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 flex items-center gap-6">
+        <Link to="/" className="flex items-center gap-3 shrink-0 rounded-sm" aria-label="Mongli Agent IA, home">
+          <BrandMark />
+          <span className="flex flex-col leading-tight">
+            <span className="font-display text-[18px] font-semibold text-ink">Mongli Agent IA</span>
+            <span className="text-[12px] text-muted">Signal Intelligence</span>
+          </span>
+        </Link>
+
+        <nav className="hidden md:flex items-stretch h-16 gap-1" aria-label="Main">
+          {NAV.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === "/"}
+              className={({ isActive }) =>
+                `relative flex items-center px-3 text-[15px] transition-colors ${
+                  isActive
+                    ? "text-ink font-medium after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:bg-accent"
+                    : "text-ink-2 hover:text-ink"
+                }`
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="ml-auto">
+          <StatusPill live={live} />
+        </div>
+      </div>
+    </header>
   );
 }
 
-export default function Navbar({ agentActive = false, totalSignals = 0, latestSignal = null }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-
+// Phone navigation: one tap to any section, always visible.
+export function TabBar() {
   return (
-    <header className="sticky top-0 z-50">
-      {/* ── Main bar ──────────────────────────────────────────────── */}
-      <div className="glass-card rounded-none border-x-0 border-t-0 border-b border-accent/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
-
-          {/* Logo */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background:"rgba(0,255,136,0.1)", border:"1px solid rgba(0,255,136,0.3)", boxShadow:"0 0 12px rgba(0,255,136,0.15)" }}
+    <nav
+      className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-ink bg-surface"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      aria-label="Sections"
+    >
+      <ul className="grid grid-cols-3">
+        {NAV.map(({ to, short, Icon }) => (
+          <li key={to}>
+            <NavLink
+              to={to}
+              end={to === "/"}
+              className={({ isActive }) =>
+                `flex h-16 flex-col items-center justify-center gap-1 text-[12px] ${
+                  isActive ? "text-ink font-semibold bg-accent-soft" : "text-ink-2"
+                }`
+              }
             >
-              <Zap size={15} className="text-accent" strokeWidth={2.5} />
-            </div>
-            <div className="hidden sm:flex flex-col leading-none">
-              <span className="font-display text-[13px] font-bold tracking-[0.18em] text-accent">MONGLI</span>
-              <span className="text-[9px] font-mono text-slate-600 tracking-widest">AGENT IA</span>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="hidden md:block w-px h-5 bg-slate-800 mx-1" />
-
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {NAV.map(({ to, label, Icon }) => (
-              <NavLink key={to} to={to} end={to === "/"} className="flex">
-                {({ isActive }) => (
-                  <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition-all duration-150 ${isActive ? "nav-active" : "nav-inactive"}`}>
-                    <Icon size={12} strokeWidth={isActive ? 2.5 : 2} />
-                    {label}
-                  </span>
-                )}
-              </NavLink>
-            ))}
-          </nav>
-
-          {/* Right side */}
-          <div className="ml-auto flex items-center gap-3">
-            <span className="hidden lg:flex items-center gap-1.5 text-xs font-mono text-slate-600">
-              <Cpu size={11} className="text-accent/40" />
-              {totalSignals.toLocaleString()} signals
-            </span>
-
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
-              style={{ background:"rgba(10,30,48,0.7)", border:`1px solid ${agentActive ? "rgba(0,255,136,0.2)" : "rgba(71,85,105,0.3)"}`, boxShadow: agentActive ? "0 0 10px rgba(0,255,136,0.08)" : "none" }}
-            >
-              <SonarDot active={agentActive} />
-              <span className="text-[10px] font-mono tracking-widest" style={{ color: agentActive ? "#00ff88" : "#475569" }}>
-                {agentActive ? "LIVE" : "DEMO"}
-              </span>
-            </div>
-
-            {/* Hamburger — mobile only */}
-            <button
-              className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
-              style={{ border: "1px solid rgba(100,116,139,0.2)", background: "rgba(10,30,48,0.5)" }}
-              onClick={() => setMobileOpen((v) => !v)}
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            >
-              {mobileOpen ? <X size={16} /> : <Menu size={16} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Mobile dropdown ───────────────────────────────────────── */}
-      {mobileOpen && (
-        <div className="md:hidden glass-card rounded-none border-x-0 border-t-0 border-b border-accent/10 animate-slideDown">
-          <div className="max-w-7xl mx-auto px-4 py-3 space-y-1">
-            {NAV.map(({ to, label, Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === "/"}
-                onClick={() => setMobileOpen(false)}
-                className="flex"
-              >
-                {({ isActive }) => (
-                  <span className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-mono cursor-pointer transition-all ${isActive ? "nav-active" : "nav-inactive"}`}>
-                    <Icon size={15} strokeWidth={isActive ? 2.5 : 2} />
-                    {label}
-                  </span>
-                )}
-              </NavLink>
-            ))}
-            <div className="pt-2 pb-1 px-4 flex items-center justify-between text-xs font-mono text-slate-600 border-t border-white/[0.04]">
-              <span>{totalSignals.toLocaleString()} signals recorded</span>
-              <span style={{ color: agentActive ? "#00ff88" : "#475569" }}>
-                {agentActive ? "● LIVE" : "● DEMO"}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Latest signal ticker ───────────────────────────────────── */}
-      <LatestBar signal={latestSignal} />
-    </header>
+              {({ isActive }) => (
+                <>
+                  <Icon
+                    size={20}
+                    strokeWidth={isActive ? 2.25 : 1.75}
+                    aria-hidden="true"
+                    className={isActive ? "text-accent" : ""}
+                  />
+                  {short}
+                </>
+              )}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

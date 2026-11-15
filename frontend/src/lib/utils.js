@@ -20,48 +20,37 @@ export function formatTime(unix) {
   return new Date(unix * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+// One fixed colour per signal type, used only to encode that type.
 export const SIGNAL_STYLES = {
   SMART_MONEY_IN: {
-    label:       "Smart Money In",
-    color:       "text-accent",
-    bg:          "bg-accent/10",
-    border:      "border-accent/20",
-    dot:         "bg-accent",
-    rowClass:    "signal-row-smart",
-    accentHex:   "#00ff88",
-    cardClass:   "glass-card-accent",
-    glowShadow:  "shadow-glow-sm",
+    label: "Smart Money In", short: "Smart money",
+    text: "text-smart", bg: "bg-smart-soft", dot: "bg-smart", bar: "bg-smart",
+    hex: "#0A6B4B",
   },
   WHALE_MOVE: {
-    label:       "Whale Move",
-    color:       "text-sky-400",
-    bg:          "bg-sky-400/10",
-    border:      "border-sky-400/20",
-    dot:         "bg-sky-400",
-    rowClass:    "signal-row-whale",
-    accentHex:   "#38bdf8",
-    cardClass:   "glass-card-whale",
-    glowShadow:  "shadow-whale-sm",
+    label: "Whale Move", short: "Whale",
+    text: "text-whale", bg: "bg-whale-soft", dot: "bg-whale", bar: "bg-whale",
+    hex: "#1D4F91",
   },
   ANOMALY: {
-    label:       "Anomaly",
-    color:       "text-amber-400",
-    bg:          "bg-amber-400/10",
-    border:      "border-amber-400/20",
-    dot:         "bg-amber-400",
-    rowClass:    "signal-row-anomaly",
-    accentHex:   "#fbbf24",
-    cardClass:   "glass-card-anomaly",
-    glowShadow:  "shadow-anomaly-sm",
+    label: "Anomaly", short: "Anomaly",
+    text: "text-anomaly", bg: "bg-anomaly-soft", dot: "bg-anomaly", bar: "bg-anomaly",
+    hex: "#8A5300",
   },
 };
 
 export function getSignalStyle(type) {
   return (
     SIGNAL_STYLES[type] ?? {
-      label: type, color: "text-slate-400", bg: "bg-slate-400/10",
-      border: "border-slate-400/20", dot: "bg-slate-400",
-      rowClass: "", accentHex: "#64748b", cardClass: "glass-card-accent", glowShadow: "",
+      label: type, short: type, text: "text-ink-2", bg: "bg-surface-2",
+      dot: "bg-muted", bar: "bg-muted", hex: "#5E636D",
     }
   );
+}
+
+// Confidence bands: high = accent, medium = neutral ink, low = danger.
+export function confidenceTone(n) {
+  if (n >= 85) return { text: "text-accent-ink", bar: "bg-accent", word: "High" };
+  if (n >= 70) return { text: "text-ink", bar: "bg-ink-2", word: "Medium" };
+  return { text: "text-danger", bar: "bg-danger", word: "Low" };
 }

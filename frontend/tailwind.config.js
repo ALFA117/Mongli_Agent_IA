@@ -1,75 +1,48 @@
 /** @type {import('tailwindcss').Config} */
+// Colours live as CSS variables in src/index.css. Each one has a fixed meaning:
+//   ink/paper/surface/line = structure · accent = brand + primary action
+//   smart/whale/anomaly    = the three signal types (data only, never decoration)
+//   danger                 = errors and low confidence
+const v = (name) => `rgb(var(--${name}) / <alpha-value>)`;
+
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        base: "#020d18",
-        surface: {
-          DEFAULT: "#061525",
-          2: "#0a1e30",
-          3: "#0f2840",
-        },
-        accent:  "#00ff88",
-        "sig-smart":   "#00ff88",
-        "sig-whale":   "#38bdf8",
-        "sig-anomaly": "#fbbf24",
+        paper:   v("paper"),
+        surface: { DEFAULT: v("surface"), 2: v("surface-2") },
+        ink:     { DEFAULT: v("ink"), 2: v("ink-2") },
+        muted:   v("muted"),
+        line:    { DEFAULT: v("line"), strong: v("ink") },
+        accent:  { DEFAULT: v("accent"), soft: v("accent-soft"), ink: v("accent-ink") },
+        smart:   { DEFAULT: v("smart"), soft: v("smart-soft") },
+        whale:   { DEFAULT: v("whale"), soft: v("whale-soft") },
+        anomaly: { DEFAULT: v("anomaly"), soft: v("anomaly-soft") },
+        danger:  { DEFAULT: v("danger"), soft: v("danger-soft") },
       },
       fontFamily: {
-        display: ["Orbitron", "monospace"],
-        mono:    ["JetBrains Mono", "Menlo", "monospace"],
+        display: ['"Source Serif 4"', "Georgia", "serif"],
+        sans:    ['"IBM Plex Sans"', "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        mono:    ['"IBM Plex Mono"', "ui-monospace", "Menlo", "monospace"],
+      },
+      borderRadius: { DEFAULT: "4px", sm: "2px", md: "4px", lg: "6px" },
+      boxShadow: {
+        hard:      "4px 4px 0 0 rgb(var(--ink))",
+        "hard-sm": "2px 2px 0 0 rgb(var(--ink))",
+        "hard-xs": "1px 1px 0 0 rgb(var(--ink))",
       },
       keyframes: {
-        sonar: {
-          "0%":   { boxShadow: "0 0 0 0 rgba(0,255,136,0.55)" },
-          "100%": { boxShadow: "0 0 0 14px rgba(0,255,136,0)" },
-        },
-        fadeUp: {
-          from: { opacity: "0", transform: "translateY(12px)" },
-          to:   { opacity: "1", transform: "translateY(0)" },
-        },
-        slideDown: {
-          from: { opacity: "0", transform: "translateY(-8px)" },
-          to:   { opacity: "1", transform: "translateY(0)" },
-        },
-        shimmer: {
-          from: { backgroundPosition: "-200% 0" },
-          to:   { backgroundPosition:  "200% 0" },
-        },
-        pulseDot: {
-          "0%, 100%": { opacity: "1" },
-          "50%":      { opacity: "0.25" },
-        },
-        glowPulse: {
-          "0%, 100%": { opacity: "0.5" },
-          "50%":      { opacity: "1"   },
-        },
-        scrollX: {
-          from: { transform: "translateX(0)" },
-          to:   { transform: "translateX(-50%)" },
-        },
-        blink: {
-          "0%, 100%": { opacity: "1" },
-          "50%":      { opacity: "0" },
-        },
+        rise:  { from: { opacity: "0", transform: "translateY(6px)" }, to: { opacity: "1", transform: "none" } },
+        fade:  { from: { opacity: "0" }, to: { opacity: "1" } },
+        pulse2:{ "0%,100%": { opacity: "1" }, "50%": { opacity: ".35" } },
+        sweep: { from: { transform: "translateX(-100%)" }, to: { transform: "translateX(250%)" } },
       },
       animation: {
-        sonar:     "sonar 2.2s ease-out infinite",
-        fadeUp:    "fadeUp 280ms ease-out forwards",
-        slideDown: "slideDown 250ms ease-out forwards",
-        shimmer:   "shimmer 1.8s linear infinite",
-        pulseDot:  "pulseDot 2s ease-in-out infinite",
-        glowPulse: "glowPulse 3s ease-in-out infinite",
-        scrollX:   "scrollX 28s linear infinite",
-        blink:     "blink 1s step-end infinite",
-      },
-      boxShadow: {
-        glass:       "0 8px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.03)",
-        "glass-sm":  "0 4px 20px rgba(0,0,0,0.45)",
-        "glow-sm":   "0 0 10px rgba(0,255,136,0.2)",
-        "glow-md":   "0 0 20px rgba(0,255,136,0.15), 0 0 40px rgba(0,255,136,0.06)",
-        "whale-sm":  "0 0 10px rgba(56,189,248,0.2)",
-        "anomaly-sm":"0 0 10px rgba(251,191,36,0.2)",
+        rise:   "rise 260ms cubic-bezier(.2,.7,.2,1) both",
+        fade:   "fade 200ms ease-out both",
+        pulse2: "pulse2 2.4s ease-in-out infinite",
+        sweep:  "sweep 1.3s ease-in-out infinite",
       },
     },
   },

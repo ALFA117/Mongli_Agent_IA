@@ -1,95 +1,116 @@
-import { ExternalLink } from "lucide-react";
+import { ChevronRight, ExternalLink, Inbox } from "lucide-react";
 import SignalTypeBadge from "./SignalTypeBadge";
 import ConfidenceBadge from "./ConfidenceBadge";
-import { shortAddress, explorerAddressUrl, formatTime, getSignalStyle } from "../lib/utils";
+import StateBlock from "./StateBlock";
+import { shortAddress, explorerAddressUrl, formatTime } from "../lib/utils";
 import { IS_DEMO } from "../lib/contract";
 
-function SkeletonRow({ i }) {
+function Wallet({ address }) {
+  // Sample wallets are placeholders, not real Mantle accounts — linking them
+  // to the explorer would "verify" nothing.
+  if (IS_DEMO) return <span className="num text-[14px] text-ink">{shortAddress(address)}</span>;
   return (
-    <tr>
-      <td className="py-3 pl-4 pr-3"><div className="skeleton h-3 w-5 rounded" style={{ animationDelay: `${i * 60}ms` }} /></td>
-      <td className="py-3 pr-4"><div className="skeleton h-5 w-32 rounded-lg" style={{ animationDelay: `${i * 60}ms` }} /></td>
-      <td className="py-3 pr-4"><div className="skeleton h-3 w-28 rounded" style={{ animationDelay: `${i * 60}ms` }} /></td>
-      <td className="py-3 pr-4"><div className="skeleton h-3 w-20 rounded" style={{ animationDelay: `${i * 60}ms` }} /></td>
-      <td className="py-3 pr-4"><div className="skeleton h-3 w-14 rounded" style={{ animationDelay: `${i * 60}ms` }} /></td>
-    </tr>
+    <a
+      href={explorerAddressUrl(address)}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      className="inline-flex items-center gap-1 num text-[14px] text-ink underline decoration-line underline-offset-4 hover:decoration-ink"
+      aria-label={`View ${address} on Mantle Explorer`}
+    >
+      {shortAddress(address)}
+      <ExternalLink size={12} aria-hidden="true" />
+    </a>
   );
 }
 
-function EmptyState() {
+function Skeleton() {
   return (
-    <tr>
-      <td colSpan={5}>
-        <div className="text-center py-16 font-mono text-sm text-slate-700">
-          <div className="text-4xl mb-3" style={{ fontFamily: "Orbitron, monospace", color: "#0f2840" }}>—</div>
-          No signals recorded yet
-        </div>
-      </td>
-    </tr>
+    <ul className="divide-y divide-line" aria-hidden="true">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <li key={i} className="flex items-center gap-4 px-4 sm:px-5 py-4">
+          <div className="skeleton h-4 w-6" />
+          <div className="skeleton h-6 w-32" />
+          <div className="skeleton h-4 w-28 hidden sm:block" />
+          <div className="skeleton h-4 w-24 ml-auto" />
+        </li>
+      ))}
+    </ul>
   );
 }
 
-export default function SignalTable({ signals = [], loading = false, onRowClick }) {
+export default function SignalTable({ signals = [], loading = false, onRowClick, emptyText }) {
+  if (loading) return <Skeleton />;
+  if (signals.length === 0)
+    return (
+      <StateBlock icon={Inbox} title="No signals yet">
+        {emptyText ?? "When the agent records a signal it will appear here."}
+      </StateBlock>
+    );
+
+  const open = (s) => onRowClick?.(s);
+  const onKey = (e, s) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(s); }
+  };
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm font-mono min-w-[560px]">
+    <>
+      {/* Desktop / tablet: table */}
+      <table className="hidden sm:table w-full text-left">
         <thead>
-          <tr className="border-b border-white/[0.04]">
-            {["#", "Type", "Wallet", "Confidence", "Time"].map((h) => (
-              <th key={h} className="text-left pb-3 pr-4 first:pl-4 section-label font-normal">
-                {h}
-              </th>
+          <tr className="border-b border-line bg-surface-2/60">
+            {["#", "Type", "Wallet", "Confidence", "Time", ""].map((h, i) => (
+              <th key={i} scope="col" className="label py-2.5 px-4 first:pl-5 font-medium">{h}</th>
             ))}
           </tr>
         </thead>
-        <tbody>
-          {loading
-            ? Array.from({ length: 7 }).map((_, i) => <SkeletonRow key={i} i={i} />)
-            : signals.length === 0
-            ? <EmptyState />
-            : signals.map((s, idx) => {
-                const style = getSignalStyle(s.type);
-                return (
-                  <tr
-                    key={s.id}
-                    onClick={() => onRowClick?.(s)}
-                    className={`signal-row ${style.rowClass} animate-fadeUp ${onRowClick ? "cursor-pointer" : ""}`}
-                    style={{ animationDelay: `${idx * 35}ms`, animationFillMode: "both" }}
-                    title={onRowClick ? "Click to view signal details" : undefined}
-                  >
-                    <td className="py-3 pl-4 pr-3 text-xs text-slate-700 tabular-nums">{s.id}</td>
-                    <td className="py-3 pr-4">
-                      <SignalTypeBadge type={s.type} />
-                    </td>
-                    <td className="py-3 pr-4">
-                      {IS_DEMO ? (
-                        // Sample wallets are placeholders, not real Mantle accounts —
-                        // linking them to the explorer would "verify" nothing.
-                        <span className="text-slate-400">{shortAddress(s.wallet)}</span>
-                      ) : (
-                      <a
-                        href={explorerAddressUrl(s.wallet)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1 w-fit text-slate-400 hover:text-accent transition-colors duration-150 group cursor-pointer"
-                        aria-label={`View ${s.wallet} on explorer`}
-                      >
-                        {shortAddress(s.wallet)}
-                        <ExternalLink size={10} className="opacity-0 group-hover:opacity-60 transition-opacity" />
-                      </a>
-                      )}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <ConfidenceBadge value={s.confidence} />
-                    </td>
-                    <td className="py-3 pr-4 text-xs text-slate-600">{formatTime(s.timestamp)}</td>
-                  </tr>
-                );
-              })
-          }
+        <tbody className="divide-y divide-line">
+          {signals.map((s) => (
+            <tr
+              key={s.id}
+              className={onRowClick ? "row-click" : ""}
+              onClick={() => open(s)}
+              onKeyDown={(e) => onKey(e, s)}
+              tabIndex={onRowClick ? 0 : undefined}
+              aria-label={onRowClick ? `Signal ${s.id}, open details` : undefined}
+            >
+              <td className="py-3.5 pl-5 pr-4 num text-[13px] text-muted">{s.id}</td>
+              <td className="py-3.5 px-4"><SignalTypeBadge type={s.type} /></td>
+              <td className="py-3.5 px-4"><Wallet address={s.wallet} /></td>
+              <td className="py-3.5 px-4"><ConfidenceBadge value={s.confidence} /></td>
+              <td className="py-3.5 px-4 text-[14px] text-ink-2 whitespace-nowrap">{formatTime(s.timestamp)}</td>
+              <td className="py-3.5 pr-5 pl-2 text-right text-muted">
+                {onRowClick && <ChevronRight size={16} aria-hidden="true" className="inline" />}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
-    </div>
+
+      {/* Phone: one tappable row per signal */}
+      <ul className="sm:hidden divide-y divide-line">
+        {signals.map((s) => (
+          <li key={s.id}>
+            <button
+              type="button"
+              onClick={() => open(s)}
+              className="row-click w-full min-h-[64px] flex items-center gap-3 px-4 py-3 text-left"
+            >
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <SignalTypeBadge type={s.type} />
+                  <span className="text-[13px] text-ink-2 whitespace-nowrap">{formatTime(s.timestamp)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="num text-[14px] text-ink">{shortAddress(s.wallet)}</span>
+                  <ConfidenceBadge value={s.confidence} />
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-muted shrink-0" aria-hidden="true" />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
