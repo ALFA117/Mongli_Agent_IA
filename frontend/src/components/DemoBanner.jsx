@@ -6,13 +6,15 @@ import { IS_DEMO } from "../lib/contract";
 export default function DemoBanner() {
   if (!IS_DEMO) return null;
   return (
-    <div className="border-b border-amber-400/25 bg-amber-400/[0.07]" role="status">
-      <div className="max-w-7xl mx-auto flex items-start gap-3 px-4 sm:px-6 lg:px-8 py-2.5">
-        <FlaskConical size={16} className="text-amber-400 shrink-0 mt-0.5" aria-hidden="true" />
-        <p className="text-sm text-slate-300">
-          <span className="font-mono font-semibold text-amber-400">Demo mode</span>
-          {" — "}these are sample signals, not live Mantle data. The contract address is not configured
-          on this deployment yet.
+    <div className="border-b border-line bg-surface-2" role="status">
+      <div className="max-w-6xl mx-auto flex items-start gap-3 px-4 sm:px-6 py-3">
+        <span className="mt-0.5 inline-flex items-center gap-1.5 shrink-0 rounded-sm border border-ink bg-surface px-1.5 py-0.5 font-mono text-[12px] font-medium text-ink">
+          <FlaskConical size={13} strokeWidth={2} aria-hidden="true" />
+          Demo
+        </span>
+        <p className="text-[14px] leading-6 text-ink-2">
+          These are sample signals, not live Mantle data. The signals contract is not deployed on
+          this deployment yet, so wallets and hashes are placeholders.
         </p>
       </div>
     </div>
